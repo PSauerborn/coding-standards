@@ -1,14 +1,18 @@
 # Acceptance Testing Standards
 
-This document contains coding standards for acceptance testing. The document outlines a series of **rules** and **guidelines**. **rules** are mandatory and must be followed. **guidelines** are best practices and should be implemented where reasonable. Examples should be treated as guidelines.
+This document contains coding standards for acceptance testing. The document outlines a series of **MUST** and **SHOULD**. **MUST**s** are mandatory and must be followed. **SHOULD** are best practices and should be implemented where reasonable. Examples should be treated as **SHOULD**.
 
-**Rule**: Acceptance tests must be implemented using Gherkin Given, When, Then syntax.
+If a user request contradicts a **SHOULD** statement, follow the user request. If it contradicts a **MUST** statement, ask for confirmation.
 
-**Rule**: Acceptance tests must be implemented using the Cucumber framework.
+## General
 
-**Guideline**: Acceptance tests should be placed in the `acceptance` directory.
+**MUST**: Acceptance tests must be implemented using Gherkin `Given, When, Then` syntax.
 
-**Guideline**: Acceptance tests should be ran against live DEV environments.
+**MUST**: Acceptance tests must be implemented using the Cucumber framework.
+
+**SHOULD**: Acceptance tests should be placed in the `acceptance` directory.
+
+**SHOULD**: Acceptance tests should be ran against live DEV environments.
 
 **Guidline**: `.feature` files should be placed in the `acceptance/features` directory.
 
@@ -16,7 +20,7 @@ This document contains coding standards for acceptance testing. The document out
 
 **Guidline**: Acceptenance tests should be implemented in the same language as the application. Golang projects should use the `github.com/cucumber/godog` package. Python projects should use the `behave` package.
 
-**Guideline**: A dockerfile should be provided to run the acceptance tests.
+**SHOULD**: A dockerfile should be provided to run the acceptance tests.
 
 
 ### Example: Golang
@@ -27,75 +31,76 @@ Acceptance tests implemented in Golang should use the `github.com/cucumber/godog
 package main
 
 import (
-	"net/http"
-	"os"
-	"testing"
+    "net/http"
+    "os"
+    "testing"
 
-	"github.com/cucumber/godog"
+    "github.com/cucumber/godog"
 )
 
 const (
-	API_BASE_URL = "https://api-dev.alpn-software.com"
+    API_BASE_URL = "https://api-dev.alpn-software.com"
 )
 
 // TestMain is the entry point for running the acceptance tests using Godog.
 func TestMain(m *testing.M) {
-	opts := godog.Options{
-		Format:    "pretty",             // Output format
-		Paths:     []string{"features"}, // Path to feature files
-		Randomize: 0,                    // Execute scenarios in order
-	}
+    opts := godog.Options{
+        Format:    "pretty",             // Output format
+        Paths:     []string{"features"}, // Path to feature files
+        Randomize: 0,                    // Execute scenarios in order
+    }
 
-	status := godog.TestSuite{
-		Name:                 "acceptance",
-		TestSuiteInitializer: InitializeTestSuite,
-		ScenarioInitializer:  InitializeScenario,
-		Options:              &opts,
-	}.Run()
+    status := godog.TestSuite{
+        Name:                 "acceptance",
+        TestSuiteInitializer: InitializeTestSuite,
+        ScenarioInitializer:  InitializeScenario,
+        Options:              &opts,
+    }.Run()
 
-	if st := m.Run(); st > status {
-		status = st
-	}
-	os.Exit(status)
+    if st := m.Run(); st > status {
+        status = st
+    }
+    os.Exit(status)
 }
 
 // InitializeTestSuite sets up the test suite, including global before/after hooks.
 func InitializeTestSuite(ctx *godog.TestSuiteContext) {
-	// Global setup (e.g., start API server, docker containers)
-	ctx.BeforeSuite(func() {
-		// StartServer()
-	})
-	ctx.AfterSuite(func() {
-		// StopServer()
-	})
+    // Global setup (e.g., start API server, docker containers)
+    ctx.BeforeSuite(func() {
+        // StartServer()
+    })
+    ctx.AfterSuite(func() {
+        // StopServer()
+    })
 }
 
+// GOOD: define feature struct to store state between steps
 type ApiFeature struct {
-	resp   *http.Response
-	client *http.Client
+    resp   *http.Response
+    client *http.Client
 }
 
 func (f *ApiFeature) IAmAUser() error {
-	return nil
+    return nil
 }
 
 func (f *ApiFeature) IDoSomething() error {
-	return nil
+    return nil
 }
 
 func (f *ApiFeature) IExpectSomething() error {
-	return nil
+    return nil
 }
 
 // InitializeScenario sets up each scenario by registering steps and creating a new ApiFeature instance.
 func InitializeScenario(ctx *godog.ScenarioContext) {
-	api := ApiFeature{
-		client: &http.Client{},
-	}
+    api := ApiFeature{
+        client: &http.Client{},
+    }
 
-	ctx.Step(`^I am a user$`, api.IAmAUser)
-	ctx.Step(`^I do something$`, api.IDoSomething)
-	ctx.Step(`^I expect something$`, api.IExpectSomething)
+    ctx.Step(`^I am a user$`, api.IAmAUser)
+    ctx.Step(`^I do something$`, api.IDoSomething)
+    ctx.Step(`^I expect something$`, api.IExpectSomething)
 }
 
 ```

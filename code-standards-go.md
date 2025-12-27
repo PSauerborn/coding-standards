@@ -1,147 +1,198 @@
 # Golang Code Standards
+**MUST**: Use spaces for indentation instead of tabs.
 
-This document contains coding standards for Golang projects. The document outlines a series of **rules** and **guidelines**. **rules** are mandatory and must be followed. **guidelines** are best practices and should be implemented where reasonable. Examples should be treated as guidelines.
+This document contains coding standards for Golang projects. The document outlines a series of **MUST** and **SHOULD** statements. **MUST** statements are mandatory and must be followed. **SHOULD** statements are best practices and should be implemented where reasonable. Examples should be treated as **SHOULD** statements.
+
+If a user request contradicts a **SHOULD** statement, follow the user request. If it contradicts a **MUST** statement, ask for confirmation.
 
 ## General
 
-**Rule**: Golang applications must use go modules.
+**MUST**: Golang applications must use go modules.
 
-**Rule**: All functions must have a doc string that clearly describes the purpose of the function, its parameters, and its return values. The first word of every doc string should be the name of the function.
+**MUST**: All functions must have a doc string that clearly describes the purpose of the function, its parameters, and its return values. The first word of every doc string should be the name of the function. This ensures that the doc string is easily searchable.
 
-**Rule**: Filename must all be snake_case.
+**MUST**: Filename must all be snake_case.
 
-**Guideline**: Object-oriented programming should be avoided in favor of functional programming. 
+**SHOULD**: Prefer functional programming patterns (pure functions, immutability) over object-oriented patterns (classes, inheritance).
 
-**Guideline**: Projects that build a single binary/application should be structured in a flat directory structure. 
+**SHOULD**: Projects that build a single binary/application (i.e. a single API) should be structured in a flat directory structure. This prevents over-engineering and deep nesting for simple services, making file navigation and package imports cleaner.
 
-**Guideline**: Projects that build multiple binaries/applications that share code (i.e an API, CLI and workers) should be structured in a nested directory structure. At minimum this should include a `cmd` directory for the main application, a `bin` directory for binary files, and an `internal` directory for shared code.
-
-
-## Linting & Formatting
-
-**Rule**: Linting must be performed using the `golangci-lint` tool.
-
-**Rule**: Code must be formatted using the `gofmt` tool.
+**SHOULD**: Projects that build multiple binaries/applications that share code (i.e an API, CLI and workers) should be structured in a nested directory structure. At minimum this should include a `cmd` directory for the main application, a `bin` directory for binary files, and an `internal` directory for shared code.
 
 ## Data Models and Validation
 
-**Rule**: Data models must be defined in a dedicated file.
+**MUST**: Data models must be defined in a dedicated file.
 
-**Rule**: Data models must have validation rules defined. Validation should be done via the `github.com/go-playground/validator/v10` package.
+**MUST**: Data models must have validation rules defined. Validation should be done via the `github.com/go-playground/validator/v10` package.
 
-**Guideline**: Structs than have multiple custom struct types should contain a `Validate` function that validates nested structs.
+**SHOULD**: DTOs and domain models should be defined separately. This ensures that API logic is decoupled from database/storage logic.
 
-**Guideline**: DTOs and domain models should be defined separately. DTOs must be have strict validation rules to ensure that they are valid before being used in business logic. Validation for domain models can be less strict.
+**SHOULD**: DTOs should have strict validation rules to ensure that they are valid before being used in business logic. This ensures that external data is validated before being used in business logic.
 
-**Guideline**: Domain models that belong to entities stored in a database should all have a `createdAt`, `updatedAt`, `createdBy` and `lastUpdatedBy` field. 
+**SHOULD**: Domain models that belong to entities stored in a database should all have a `createdAt`, `updatedAt`, `createdBy` and `lastUpdatedBy` field.
 
 ## Error Handling
 
-**Rule**: Business logic handlers must return errors rather than panicking. Top level handlers such as `main.go` can panic if an error is returned.
+**MUST**: Business logic handlers must return errors rather than panicking. Top level handlers such as `main.go` can panic if an error is returned.
 
-**Guideline**: Custom erraors should be used where appropriate. Custom errors should be defined in a dedicated file.
+**SHOULD**: Custom errors should be used in favor of generic errors. This ensures that errors are more descriptive and can be handled more effectively.
+
+**SHOULD**: Custom errors should be defined in a dedicated `errors.go` file.
 
 ## Configuration
 
-**Rule**: Configuration must be handled via environment variables.
+**MUST**: Configuration must be handled via environment variables. This ensures that configuration is decoupled from code and can be easily changed without modifying code.
 
-**Rule**: Configuration must be validated at application startup to ensure that all required variables are set. Validation should be done via the `github.com/go-playground/validator/v10` package.
+**MUST**: Configuration must be validated at application startup to ensure that all required variables are set. This ensures that the application fails fast if a required variable is not set.
 
-**Guidelines**: Packages should define a `Config` struct that contains all configuration variables. Each field should be tagged with a `validate` tag validate the values passed via environment variables. For instance, the `required` tag can be used to ensure that a variable is set.
+**SHOULD**: Packages should define a `Config` struct that contains all configuration settings required by the package. Each config field should be tagged with a `validate` tag to validate the values passed via environment variables. Validation should be done via the `github.com/go-playground/validator/v10` package. See `Example 1` for an illustration.
 
-**Guidelines**: Environment variables should be loaded via the `github.com/spf13/viper` package. The `Config` should then be populated with the values loaded from environment variables.
+**SHOULD**: Environment variables should be loaded via the `github.com/spf13/viper` package. The `Config` struct should then be populated with the values loaded from environment variables. See `Example 1` for an illustration.
 
+### Example 1
 
-### Example
-
-The following example illustrates how application configuration can be handled.
+The following example illustrates how application configuration should be handled.
 
 ```go
+// GOOD
+// File: config.go
 package main
 
 import (
     "github.com/go-playground/validator/v10"
-	log "github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
+    "github.com/spf13/viper"
+
+    log "github.com/sirupsen/logrus"
 )
 
+// GOOD: define config struct with validation tags
 type Config struct {
     LogLevel string `validate:"required,oneof=debug info warn error"`
-    DbUrl string `validate:"required"`
+    DbUrl    string `validate:"required"`
 }
 
+// Validate validates the configuration using the validator package
 func (c Config) Validate() error {
+    // GOOD: use validator package to validate config struct
     validate := validator.New(validator.WithRequiredStructEnabled())
-	return validate.Struct(c)
+    return validate.Struct(c)
 }
 
+// LoadConfig loads the configuration from environment variables. If a required variable is not set, the application will panic.
 func LoadConfig() *Config {
+    // GOOD: use viper to load environment variables
     viper.AutomaticEnv()
-	// Set default values for optional variables
-	viper.SetDefault("LOG_LEVEL", "info")
+    // GOOD: set default values for environment variables
+    viper.SetDefault("LOG_LEVEL", "info")
 
-	cfg := &Config{
-		LogLevel: viper.GetString("LOG_LEVEL"),
+    // GOOD: populate config struct with environment variables
+    cfg := &Config{
+        LogLevel: viper.GetString("LOG_LEVEL"),
         DbUrl: viper.GetString("DB_URL"),
-	}
+    }
 
-	if err := cfg.Validate(); err != nil {
-		panic(err)
-	}
-	return cfg
+    // GOOD: validate configuration at load time
+    if err := cfg.Validate(); err != nil {
+        panic(err)
+    }
+    return cfg
 }
 
 ```
 
 ## Unittests
 
-**Rule**: Unittests must be implemented for all business logic.
+**MUST**: Unittests must be implemented for all business logic.
 
-**Rule**: Unittests must be implemented using the `testing` package.
+**MUST**: Unittests must be implemented using the `testing` package.
 
-**Guidline**: Each function should have a corresponding unittest. Unittests should be named in the format `TestFunctionName`.
+**MUST**: Each `.go` file should have a corresponding `_test.go` file that contains unittests for the logic defined in the `.go` file.
 
-**Guideline**: All possible paths through a function should be tested. Each path should be tested within the same `TestFunctionName` function, but in a separate `t.Run` block.
+**SHOULD**: Each function should have a corresponding unittest. Unittests should be named in the format `TestFunctionName`.
 
-**Guideline**: Each `.go` file should have a corresponding `_test.go` file that contains unittests for the logic defined in the `.go` file.
+**SHOULD**: All possible paths through a function should be tested. Each path should be tested within the same `TestFunctionName` function, but in a separate `t.Run` block. This ensures that unittests remain maintainable and easy to understand while still grouping related tests together.
 
-**Guideline**: Unittests should be run via the `gotestsum` package.
+**SHOULD**: Unittests should mock database and other service connections rather than using real connections. Connection to live databases should only be used in integration tests. This ensures that unittests are fast and do not depend on external services.
 
-**Guideline**: Unittests should mock database and other service connections rather than using real connections to ensure that unittests are fast and do not depend on external services.
-
-**Guideline**: Additional test data used to test business logic (PDF, CSV files etc) should be stored in a separate `tests/data` directory.
+**SHOULD**: Additional test data used to test business logic (PDF, CSV files etc) should be stored in a separate `tests/data` directory. This ensures that test files do not become cluttered with test data.
 
 ## Logging
 
-**Rule**: All applications must implement logging.
+**MUST**: All applications must implement logging. Logging should be present at all levels of the application.
 
-**Rule**: Logging must follow a structured logging format.All log messages should contain at minimum the timestamp, log level, and message.
+**MUST**: Logging must follow a structured logging format. All log messages should contain at minimum the timestamp, log level, and message.
 
-**Guideline**: Log levels should be passed down as environment variables.
+**SHOULD**: The log level should be passed down as environment variables.
 
-**Guideline**: Logging should be handled via the `github.com/sirupsen/logrus` package, ideally using the `logrus.JSONFormatter`. 
+**SHOULD**: Logging should be handled via the `github.com/sirupsen/logrus` package, ideally using the `logrus.JSONFormatter`. 
+
+### Example 2
+
+The following example illustrates a logging implementation.
+
+```go
+// GOOD
+// File: main.go
+package main
+
+import (
+    "os"
+
+    // GOOD: use github.com/sirupsen/logrus for logging
+    log "github.com/sirupsen/logrus"
+)
+
+func main() {
+    // GOOD: get log level from environment variables
+    // and convert to logrus level
+    logLevel := os.Getenv("LOG_LEVEL")
+    if logLevel == "" {
+        logLevel = "info"
+    }
+    log.SetLevel(log.Level(logLevel))
+
+    // GOOD: use structlogging
+    log.SetFormatter(&log.JSONFormatter{})
+
+    // GOOD: implement logging at all levels of the application
+    log.WithFields(log.Fields{
+        "version": "1.0.0",
+    }).Info("Application started")
+
+    if err := DoSomething(); err != nil {
+        log.WithError(err).Fatal("Failed to do something")
+    }
+}
+```
 
 ## Persistence Layers
 
-**Rule**: persistence layers must have their own dedicated file that contains all database queries.
+**MUST**: Persistence layers must have their own dedicated file that contains all storage logic.
 
-**Rule**: persistence layers must be implemented via an interface. Each interface should have an associated `New` function that returns a new instance of the interface, which should accept connection parameters as arguments. Database clients should be initialized in the `New` function and set as a field of the interface implementation.
+**MUST**: Persistence layers must be implemented via an interface. Each interface must have an associated `New` function that returns a new instance of the interface, which should accept connection parameters as arguments. Database clients must be initialized in the `New` function and set as a field of the interface implementation. See `Example 2` for an illustration.
 
-**Guideline**: persistence layers should be implemented using the repository pattern.
+**SHOULD**: Persistence layers should be implemented using the repository pattern.
 
-**Guideline**: persistence layers should should accept and return domain models where multiple input and return values are required.
+**SHOULD**: Persistence layers should should accept and return domain models where multiple input and return values are required. See `Example 2` for an illustration.
 
-### Example
+**SHOULD**: PostgreSQL should be used by default if not otherwise specified.
+
+### Example 3
 
 The following example illustrates a persistence layer for a generic SQLite database.
 
 ```go
+// GOOD
+// File: persistence.go
+
+// GOOD: define domain model separately from DTOs
 type User struct {
-    Id    string
-    Name  string
-    Email string
+    Id    string `validate:"required"`
+    Name  string `validate:"required"`
+    Email string `validate:"required,email"`
 }
 
+// GOOD: define interface for persistence layer
 type PersistenceLayer interface {
     CreateUser(user User) error
     GetUserById(id string) (User, error)
@@ -151,19 +202,51 @@ type ExampleRepository struct {
     db *sql.DB
 }
 
+// GOOD: implement New function for persistence layer
+// NewExampleRepository creates a new ExampleRepository instance.
 func NewExampleRepository(dsn string) (*ExampleRepository, error) {
     db, err := sql.Open("sqlite", dsn)
     if err != nil {
-        return ExampleRepository{}, err
+        // GOOD: log error with context
+        log.WithError(err).Error("failed to open database")
+        return nil, err
     }
     return &ExampleRepository{db: db}, nil
 }
 
+type UserExistsError struct {
+    Id string
+}
+
+// GOOD: implement custom error types
+func (e UserExistsError) Error() string {
+    return fmt.Sprintf("user exists: %s", e.Id)
+}
+
+// CreateUser creates a new user in the database.
 func (r ExampleRepository) CreateUser(user User) error {
+    // GOOD: use custom error types to provide more context about the error
+    if userExists {
+        return UserExistsError{Id: user.Id}
+    }
     return nil
 }
 
+// GOOD: implement custom error types
+type UserNotFoundError struct {
+    Id string
+}
+
+func (e UserNotFoundError) Error() string {
+    return fmt.Sprintf("user not found: %s", e.Id)
+}
+
+// GetUserById retrieves a user by ID.
 func (r ExampleRepository) GetUserById(id string) (User, error) {
+    // GOOD: use custom error types to provide more context about the error
+    if userNotFound {
+        return User{}, UserNotFoundError{Id: id}
+    }
     return User{}, nil
 }
 
@@ -171,39 +254,47 @@ func (r ExampleRepository) GetUserById(id string) (User, error) {
 
 ### PostgreSQL
 
-**Rule**: PostgreSQL persistence layers must be implemented using the `github.com/jackc/pgx/v5` package.
+**MUST**: PostgreSQL persistence layers must be implemented using the `github.com/jackc/pgx/v5` package. This enforces consistency across all applications.
 
-**Guidline**: Connection pools should be used in most cases rather than isolated connections.
+**SHOULD**: Connection pools should be used in most cases rather than isolated connections. This ensures that connections are reused and that the application does not consume too many resources.
 
 ## REST APIs
 
-**Rule**: REST APIs must accept and return JSON data. Exceptions can be made for file uploads and responses where binary data is required. 
+**MUST**: REST APIs must accept and return JSON data. Exceptions can be made for file uploads and responses where binary data is required. 
 
-**Rule**: REST APIs must structure responses in a consistent manner. Error responses must contain an `error` field, and an optional `details` field. The `error` field must contain a generic error message i.e. "Internal Server Error", "Bad Request" etc. The `details` field should contain additional details about the error where applicable. Success responses must return data in a `data` field.
+**MUST**: REST APIs must structure responses in a consistent manner. 
 
-**Rule**: All REST APIs must have an associated `openapi.yaml` file that defines the API contract.
+**MUST**: Error responses must contain an `error` field, and an optional `details` field. The `error` field must contain a generic error message i.e. "Internal Server Error", "Bad Request" etc. The `details` field should contain additional details about the error where applicable. 
 
-**Rule**: DTO structs must define struct validation rules using the `binding` tag.
+**MUST**: Success responses must return data in a `data` field.
 
-**Guideline**: REST APIs should be implemented using the `github.com/gin-gonic/gin` package.
+**MUST**: All REST APIs must have an associated `openapi.yaml` file that defines the API contract. This ensures that the API is well-documented.
 
-**Guidelines**: Packages defining REST APIs should have a `NewRouter` function that returns a new instance of the router with all plugins and endpoints registered. Registration of endpoints should be kept minimal and only contain the basic logic for routing, creation of depedencies such as database clients, and error handling. All business logic should be implemented outside of the endpoint definition.
+**SHOULD**: REST API endpoints should follow a dependency injection pattern. Prefer initialization of dependencies within the endpoint handler rather than within business logic. See `Example 3` for an illustration.
 
-**Guidelines**: REST API endpoints should follow a dependency injection pattern. Database and other service client should not be initialized in business logic functions.
+**SHOULD**: REST APIs should be implemented using the `github.com/gin-gonic/gin` package.
 
-**Guidelines**: Database clients and other dependencies should be initialized within the endpoint handler, when the endpoint is invoked. Database and other service connections should NOT be shared across endpoints.
+**SHOULD**: Packages defining REST APIs should have a `NewRouter` constructor that returns a new instance of the router with all plugins and endpoints registered. 
 
-**Guidelines**: Each endpoint should have a `EndpointNameHandler` function that takes the `*gin.Context` as the first argument, followed by any additional dependencies such as database clients. It should return a `JSONResponse` struct that contains the HTTP response code, and body.
+**SHOULD**: Registration of endpoints should be kept minimal and only contain the basic logic for routing, creation of depedencies such as database clients, and error handling. All business logic should be implemented outside of the endpoint definition.
 
-**Guidelines**: CORS should be enabled for REST APIs by default via the `github.com/gin-contrib/cors` package.
+**SHOULD**: Database clients and other dependencies should be initialized within the endpoint handler, when the endpoint is invoked. Prefer a new database/client/service connection for each request as this avoids long-lived connections and reduces the risk of connection leaks. See `Example 3` for an illustration.
 
-**Guidelines**: Each endpoint should have its own unittest.
+**SHOULD**: DTO structs should be define separately from domain models, and should include validation for all fields. This should be done using the `binding` tag.
 
-### Example
+**SHOULD**: Each endpoint should have a `EndpointNameHandler` function that takes the `*gin.Context` as the first argument, followed by any additional dependencies such as database clients. It should return a `JSONResponse` struct that contains the HTTP response code, and body. See `Example 3` for an illustration.
 
-The following example illustrates a REST API endpoint for a generic SQLite database.
+**SHOULD**: CORS should be enabled for REST APIs by default via the `github.com/gin-contrib/cors` package.
+
+**SHOULD**: Each endpoint should have its own unittest.
+
+### Example 4
+
+The following example illustrates how a REST API should be structured.
 
 ```go
+// GOOD
+// main.go
 package main
 
 import (
@@ -222,27 +313,56 @@ func(response JSONResponse) Send(c *gin.Context) {
     c.JSON(response.Code, response.Body)
 }
 
+// NewRouter returns a new router with all plugins and endpoints registered
 func NewRouter() *gin.Engine {
     router := gin.Default()
     router.Use(cors.Default())
 
+    // GOOD: endpoint registration is kept minimal. Business logic should be in handler.
     router.GET("/health", func (c *gin.Context) {
+        // GOOD: Database connections are initialized within the endpoint handler
+        // for each request
         db, err := sql.Open("sqlite", "./test.db")
         if err != nil {
-            log.Error(fmt.Sprintf("failed to open database: %v", err))
+            // ensure logging is used throughout application
+            log.WithError(err).Error("failed to connect to database")
             c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
             return
         }
 
-        response := HealthCheckHandler(c)
+        // GOOD: dependency injection is implemented
+        response := HealthCheckHandler(c, db)
+        response.Send(c)
+    })
+
+    // GOOD: endpoint registration is kept minimal. Business logic should be in handler.
+    router.POST("/resource", func (c *gin.Context) {
+        // GOOD: Database connections are initialized within the endpoint handler
+        // for each request
+        db, err := sql.Open("sqlite", "./test.db")
+        if err != nil {
+            // ensure logging is used throughout application
+            log.WithError(err).Error("failed to connect to database")
+            c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+            return
+        }
+
+        // GOOD: dependency injection is implemented
+        response := CreateResourceHandler(c, db)
         response.Send(c)
     })
 
     return router
 }
 
+// HealthCheckHandler handles health checks by pinging the database.
+// If connection to the database fails, an error response is returned.
 func HealthCheckHandler(c *gin.Context, db *sql.DB)  JSONResponse {
     if err := db.Ping(); err != nil {
+        // GOOD: logging is used throughout application
+        log.WithError(err).Error("failed to ping database")
+
+        // GOOD: response is structured as per contract
         return JSONResponse{
             Code: http.StatusInternalServerError,
             Body: gin.H{
@@ -258,10 +378,64 @@ func HealthCheckHandler(c *gin.Context, db *sql.DB)  JSONResponse {
     }
 }
 
+type NewResourceRequest struct {
+    Name        string `json:"name" binding:"required"` // GOOD: use binding tags to validate request data
+    Description string `json:"description" binding:"required"`
+}
+
+// CreateResourceHandler handles the creation of a new resource.
+func CreateResourceHandler(c *gin.Context, db *sql.DB) JSONResponse {
+    var body NewResourceRequest
+    if err := c.ShouldBindJSON(&body); err != nil {
+        // GOOD: structured error response
+        log.WithError(err).Error("failed to parse request data")
+        return JSONResponse{
+            Code: http.StatusBadRequest,
+            Body: gin.H{
+                "error": "Bad Request",
+                "details": "Invalid request data.",
+            },
+        }
+    }
+
+    // business logic to create resource
+    id, err := Todo(body)
+    if err != nil {
+        log.WithError(err).Error("failed to create resource")
+        return JSONResponse{
+            Code: http.StatusInternalServerError,
+            Body: gin.H{
+                "error": "Internal Server Error",
+                "details": "Failed to create resource.",
+            },
+        }
+    }
+
+    // GOOD: structured logging is used throughout application
+    log.WithFields(log.Fields{
+        "name": body.Name,
+        "description": body.Description,
+    }).Info("resource created")
+
+    return JSONResponse{
+        Code: http.StatusCreated,
+        Body: gin.H{
+            "data": id,
+        },
+    }
+}
+
 func main() {
+    config := LoadConfig()
+    log.SetLevel(log.Level(config.LogLevel))
+    // GOOD: Structured logging is used throughout application
+    log.SetFormatter(&log.JSONFormatter{})
+
     router := NewRouter()
+
     if err := router.Run(":8080"); err != nil {
-        log.Fatal(fmt.Sprintf("failed to run router: %v", err))
+        // GOOD: panic is used for critical errors only in top level functions
+        log.WithError(err).Fatal("failed to run server")
     }
 }
 
@@ -269,18 +443,17 @@ func main() {
 
 ## Dockerfiles
 
-**Rule**: Dockerfiles must be provided for all applications. 
+**MUST**: Dockerfiles must be provided for all applications. 
 
-**Rule**: Dockerfiles must be implemented as multi-stage builds. 
+**MUST**: Dockerfiles must be implemented as multi-stage builds. 
 
-**Rule**: Images must be built for AMD linux architecture. Use the --platform linux/amd64 flag to specify the architecture when building the image. Additionally, the --provenance=false flag must be used to disable provenance.
+**MUST**: Images must be built for AMD linux architecture. Use the `--platform linux/amd64` flag to specify the architecture when building the image. Additionally, the `--provenance=false` flag must be used to disable provenance.
 
-**Rule**: Non-essential files should be excluded from the final image.
+**MUST**: Non-essential files should be excluded from the final image.
 
-**Guideline**: Dockerfiles should consist of three stages. The first stage should run unittests, the second stage should build the application, and the third stage should run the application. 
+**SHOULD**: Dockerfiles should consist of three stages. The first stage should run unittests, the second stage should build the application, and the third stage should run the application. 
 
-**Guideline**: Any stages that do not run the application should be based on the full golang image. Stages that run the application should be based on the `gcr.io/distroless/static:nonroot` image where possible.
-
+**SHOULD**: Any stages that do not run the application should be based on the full golang image. Stages that run the application should be based on the `gcr.io/distroless/static:nonroot` image.
 
 ### Example
 
