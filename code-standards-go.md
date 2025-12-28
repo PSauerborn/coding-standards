@@ -1,14 +1,25 @@
 # Golang Code Standards
 
-This document contains coding standards for Golang projects. The document outlines a series of **MUST** and **SHOULD** statements. **MUST** statements are mandatory and must be followed. **SHOULD** statements are best practices and should be implemented where reasonable. Examples should be treated as **SHOULD** statements.
+# 1. Meta Rules
+
+You are a Senior Software Engineer acting as an autonomous coding agent.
+1.  **Strict Adherence**: You MUST follow all **MUST** rules below.
+2.  **Pattern Matching**: When writing code, check the "Example" sections. If you are tempted to write code that looks like a "BAD" example, STOP and refactor to match the "GOOD" example.
+3.  **Explanation**: If you deviate from a **SHOULD** rule, you must explicitly state why in your reasoning trace.
 
 If a user request contradicts a **SHOULD** statement, follow the user request. If it contradicts a **MUST** statement, ask for confirmation.
 
-## General
+# 2. Verisons and Tooling
 
 **MUST**: Golang applications must use go modules.
 
 **MUST**: Golang version 1.25 or higher must be used.
+
+**MUST**: All code must be formatted using `gofmt`.
+
+**MUST**: All code must be linted using `golangci-lint`.
+
+# 3. Syntax, Naming & Style
 
 **MUST**: Use spaces for indentation instead of tabs.
 
@@ -22,7 +33,7 @@ If a user request contradicts a **SHOULD** statement, follow the user request. I
 
 **SHOULD**: Projects that build multiple binaries/applications that share code (i.e an API, CLI and workers) should be structured in a nested directory structure. At minimum this should include a `cmd` directory for the main application, a `bin` directory for binary files, and an `internal` directory for shared code.
 
-## Data Models and Validation
+# 4. Data Models and Validation
 
 **MUST**: Data models must be defined in a dedicated file.
 
@@ -34,7 +45,7 @@ If a user request contradicts a **SHOULD** statement, follow the user request. I
 
 **SHOULD**: DTOs should have strict validation rules to ensure that they are valid before being used in business logic. This ensures that external data is validated before being used in business logic.
 
-## Error Handling
+# 5. Error Handling
 
 **MUST**: Business logic handlers must return errors rather than panicking. Top level handlers such as `main.go` can panic if an error is returned.
 
@@ -42,7 +53,8 @@ If a user request contradicts a **SHOULD** statement, follow the user request. I
 
 **SHOULD**: Custom errors should be defined in a dedicated `errors.go` file.
 
-## Configuration
+
+# 6. Configuration
 
 **MUST**: Configuration must be handled via environment variables. This ensures that configuration is decoupled from code and can be easily changed without modifying code.
 
@@ -103,7 +115,7 @@ func LoadConfig() *Config {
 
 ```
 
-## Unittests
+# 7. Unittests
 
 **MUST**: Unittests must be implemented for most business logic. 100% coverage is unrealistic, but unittests should be comprehensive and cover at least 80% of the code as a guideline.
 
@@ -150,7 +162,46 @@ func TestSomeFunction(t *testing.T) {
 }
 ```
 
-## Logging
+The following testing structure should be avoided:
+
+```go
+// BAD
+// File: main_test.go
+import (
+    "testing"
+)
+
+// BAD: unittests should be grouped by test case and not be spread across multiple functions
+func TestSomeFunctionPath1(t *testing.T) {
+    result, err := SomeFunction()
+    if err != nil {
+        t.Fatal(err)
+    }
+     
+    expected := "expected result"
+    // BAD: unittests should make use of the assert package
+    if result != expected {
+        t.Errorf("expected %v, got %v", expected, result)
+    }
+}
+
+// BAD: unittests should be grouped by test case and not be spread across multiple functions
+func TestSomeFunctionPath2(t *testing.T) {
+    result, err := SomeFunction()
+    if err != nil {
+        t.Fatal(err)
+    }
+    
+    expected := "expected result"
+    // BAD: unittests should make use of the assert package
+    if result != expected {
+        t.Errorf("expected %v, got %v", expected, result)
+    }
+}
+
+```
+
+# 8. Logging
 
 **MUST**: All applications must implement logging. Logging should be present at all levels of the application.
 
@@ -199,7 +250,7 @@ func main() {
 }
 ```
 
-## Persistence Layers
+# 9. Persistence Layers
 
 **MUST**: Persistence layers must have their own dedicated file that contains all storage logic.
 
@@ -288,13 +339,44 @@ func (r ExampleRepository) GetUserById(id string) (User, error) {
 
 ```
 
+The following example illustrates how NOT to implement a persistence layer:
+
+```go
+// BAD
+// File: persistence.go
+
+// BAD: DTOs have no validation
+type User struct {
+    Id    string
+    Name  string
+    Email string 
+}
+
+// BAD: DTOs are not used as return values
+// BAD: persistence layer is not implenented using interface
+func CreateUser(name, email string) (string, string, error) {
+    // BAD: dependencies are initialized within the function
+    connection, err := sql.Open("sqlite", "")
+    if err != nil {
+        return "", "", err
+    }
+
+    response, err := connection.Exec("INSERT INTO users (name, email) VALUES ($1, $2)", name, email)
+    if err != nil {
+        return "", "", err
+    }
+
+    return response.LastInsertId(), nil
+}
+```
+
 ### PostgreSQL
 
 **MUST**: PostgreSQL persistence layers must be implemented using the `github.com/jackc/pgx/v5` package. This enforces consistency across all applications.
 
 **SHOULD**: Connection pools should be used in most cases rather than isolated connections. This ensures that connections are reused and that the application does not consume too many resources.
 
-## REST APIs
+# 10. REST APIs
 
 **MUST**: REST APIs must accept and return JSON data. Exceptions can be made for file uploads and responses where binary data is required. 
 
@@ -484,7 +566,77 @@ func main() {
 
 ```
 
-## Dockerfiles
+The following example illustrates how REST APIs should NOT be implemented:
+
+```go
+// BAD
+// File: main.go
+
+// BAD: no docstring present on function
+func CreateResourceHandler(c *gin.Context) {
+    // BAD: dependency injection is not implemented
+    db, err := sql.Open("sqlite", "./test.db")
+    if err != nil {
+        // BAD: JSONResponse contract is not implemented
+        c.JSON(http.StatusInternalServerError, gin.H{"msg": "Internal Server Error"})
+        return
+    }
+
+    // BAD: DTOs should be defined separately from domain models
+    var body Resource
+    if err := c.ShouldBindJSON(&body); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"msg": "Bad Request"})
+        return
+    }
+
+    id, err := Todo(body)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"msg": "Internal Server Error"})
+        return
+    }
+    // BAD: response does not conform to contract
+    c.JSON(http.StatusCreated, id)
+}
+
+func main() {
+    // BAD: routers should have a dedicated constructor
+    // BAD: CORS should be configured via middleware
+    router := gin.Default()
+
+    // BAD: database connections should be initialized within the endpoint handler
+    // to avoid long-lived, globally shared connections. They should NOT be shared
+    // across multiple handlers.
+    db, err := sql.Open("sqlite", "./test.db")
+    if err != nil {
+        panic(err)
+    }
+
+    // BAD: endpoint does not implement dependency injection
+    // BAD: endpoint does not implement JSONResponse contract
+    router.GET("/v1/health", func (c *gin.Context) {
+        if err := db.Ping(); err != nil {
+            // BAD: logging is not used throughout application
+            // BAD: response does not conform to contract
+            c.JSON(http.StatusInternalServerError, gin.H{"msg": "Internal Server Error"})
+            return
+        }
+
+        c.JSON(http.StatusOK, gin.H{"data": "OK"})
+    })
+
+    router.POST("/v1/resources", func (c *gin.Context) {
+        CreateResourceHandler(c)
+    })
+
+    // BAD: logging is not implemented
+    if err := router.Run(":8080"); err != nil {
+        panic(err)
+    }
+}
+
+```
+
+# 11. Dockerfiles
 
 **MUST**: Dockerfiles must be provided for all applications. 
 

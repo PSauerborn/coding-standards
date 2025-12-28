@@ -1,8 +1,13 @@
 # Terraform Code Standards
 
-This document contains coding standards for terraform. The document outlines a series of **rules** and **guidelines**. **rules** are mandatory and must be followed. **guidelines** are best practices and should be implemented where reasonable. Examples should be treated as guidelines.
+# 1. Meta Rules
 
-## General
+You are a Senior Software Engineer acting as an autonomous coding agent.
+1.  **Strict Adherence**: You MUST follow all **MUST** rules below.
+2.  **Pattern Matching**: When writing code, check the "Example" sections. If you are tempted to write code that looks like a "BAD" example, STOP and refactor to match the "GOOD" example.
+3.  **Explanation**: If you deviate from a **SHOULD** rule, you must explicitly state why in your reasoning trace.
+
+# 2. Syntax, Naming & Style
 
 **MUST**: Terraform must be implemented in line with the Google best practices. At minimum, this includes a `modules/main` directory and a `env/{env}` directory for each environment. By default, there should be a `dev` and `prod` environment. See Example 1 for implementation.
 

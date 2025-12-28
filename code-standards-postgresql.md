@@ -1,10 +1,15 @@
 # PostgreSQL Code Standards
 
-This document contains coding standards for applications that work with PostgreSQL. The document outlines a series of **MUST** and **SHOULD**. **MUST**s** are mandatory and must be followed. **SHOULD** are best practices and should be implemented where reasonable. Examples should be treated as **SHOULD**.
+# 1. Meta Rules
+
+You are a Senior Software Engineer acting as an autonomous coding agent.
+1.  **Strict Adherence**: You MUST follow all **MUST** rules below.
+2.  **Pattern Matching**: When writing code, check the "Example" sections. If you are tempted to write code that looks like a "BAD" example, STOP and refactor to match the "GOOD" example.
+3.  **Explanation**: If you deviate from a **SHOULD** rule, you must explicitly state why in your reasoning trace.
 
 If a user request contradicts a **SHOULD** statement, follow the user request. If it contradicts a **MUST** statement, ask for confirmation.
 
-## General
+# 2. Data Modelling
 
 **MUST**: PostgreSQL tables must exist under a dedicated schema. This ensures that the database can have multiple, segregated schemas for different components of the sample application.
 
