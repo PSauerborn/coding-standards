@@ -15,3 +15,5 @@ If a user request contradicts a **SHOULD** statement, follow the user request. I
 **SHOULD**: Makefiles should be used to define build and test targets.
 
 **SHOULD**: `pre-commit` hooks should be used to enforce coding standards and best practices.
+
+**SHOULD**: Projects should have decidcated integration tests.
