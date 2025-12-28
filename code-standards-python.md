@@ -8,6 +8,8 @@ If a user request contradicts a **SHOULD** statement, follow the user request. I
 
 **MUST**: Python version 3.13 or higher must be used.
 
+**MUST**: When in doubt, follow PEP 8.
+
 **MUST**: All file and functions names must be snake_case. This ensures adherence to PEP 8.
 
 **MUST**: All functions must have a doc string that clearly describes the purpose of the function, its parameters, and its return values. The first word of every doc string should be the name of the function. This ensures that the doc string is easily searchable.
@@ -334,9 +336,9 @@ def create_user(cursor: psycopg.Cursor, username: str, email: str) -> str:
 
 **SHOULD**: Database clients and other dependencies should be initialized within the endpoint handler, when the endpoint is invoked. Prefer a new database/client/service connection for each request as this avoids long-lived connections and reduces the risk of connection leaks. See `Example 6` for an illustration.
 
-**SHOULD**: DTO structs should be defined separately from domain models using the `pydantic` package, and should include validation for all fields.
+**SHOULD**: DTO datamodels should be defined separately from domain models using the `pydantic` package, and should include validation for all fields.
 
-**SHOULD**: Each endpoint should have a `endpoint_name` function. It should return a `JSONResponse` struct that contains the HTTP response code, and body. See `Example 6` for an illustration.
+**SHOULD**: Each endpoint should have a `endpoint_name` function. It should return a `JSONResponse` instance that contains the HTTP response code, and body. See `Example 6` for an illustration.
 
 **SHOULD**: `Depends` should be used to inject dependencies into endpoint handlers. This ensures that dependencies are initialized only once per request.
 
