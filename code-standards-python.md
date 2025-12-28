@@ -14,13 +14,13 @@ If a user request contradicts a **SHOULD** statement, follow the user request. I
 
 **MUST**: All functions must have a doc string that clearly describes the purpose of the function, its parameters, and its return values. The first word of every doc string should be the name of the function. This ensures that the doc string is easily searchable.
 
+**MUST**: All doc strings must be formatted using Google style.
+
 **MUST**: Type hints must be provided for all function parameters and return values.
 
 **MUST**: Use spaces for indentation instead of tabs.
 
 **SHOULD**: Prefer a functional approach when possible.
-
-**SHOULD**: PEP8 should be followed unless it contradicts a **MUST** statement, or following a user request.
 
 **SHOULD**: All code should be formatted using `black`.
 
@@ -34,7 +34,9 @@ If a user request contradicts a **SHOULD** statement, follow the user request. I
 
 **MUST**: Data models must be defined in a dedicated `models.py` file.
 
-**MUST**: Data models must be implenented using `pydantic`. 
+**MUST**: Data models must be implenented using `pydantic`.
+
+**SHOULD**: Data models should be used throught the application to group related data. This ensures that the code base is more type-safe, and makes the code more readable.
 
 **SHOULD**: An alias should be defined for fields using the `pydantic` `Field` class if applicable. Only add aliases if it is necessary to ensure that the model is compatible with either the API or the database schema.
 
@@ -42,9 +44,7 @@ If a user request contradicts a **SHOULD** statement, follow the user request. I
 
 **SHOULD**: DTOs should have strict validation rules to ensure that they are valid before being used in business logic. This ensures that external data is validated before being used in business logic.
 
-**SHOULD**: Domain models that belong to entities stored in a database should all have a `created_at`, `updated_at`, `created_by` and `last_updated_by` field.
-
-**SHOULD**: Prefer length-constrained strings over just `str` types in datamodels. `None` values should generally be preferred over empty strings. This ensures that data models are more type-safe and less prone to errors.
+**SHOULD**: Prefer length-constrained strings over just `str` types in datamodels. `None` values should be preferred to empty strings. Empty strings are ambiguous, and it is not clear whether they should be considered as "empty" or "not set".
 
 ## Example 1
 
@@ -204,8 +204,14 @@ LOGGER = structlog.get_logger()
 
 
 def add(a: int, b: int) -> int:
-    """
-    Adds two numbers.
+    """Adds two numbers.
+
+    Args:
+        a (int): The first number.
+        b (int): The second number.
+
+    Returns:
+        int: The sum of the two numbers.
     """
 
     # GOOD: implement logging at all levels of the application
@@ -235,7 +241,7 @@ if __name__ == "__main__":
 
 **SHOULD**: Persistence layers should consist of a series of functions that take the database client as the first argument, then execute any required database operations.
 
-**SHOULD**: Persistence layers should should accept and return domain models where multiple input and return values are required. See `Example 5` for an illustration.
+**SHOULD**: Persistence layers should return domain models where multiple input and return values are required. See `Example 5` for an illustration.
 
 **SHOULD**: PostgreSQL should be used by default if not otherwise specified.
 
@@ -256,9 +262,10 @@ from .models import User
 
 
 def new_postgres_connection() -> tuple[psycopg.Connection, psycopg.Cursor]:
-    """
-    Creates a new connection to the PostgreSQL database
-    based on the configuration.
+    """Creates a new connection to the PostgreSQL database based on the configuration.
+
+    Returns:
+        tuple[psycopg.Connection, psycopg.Cursor]: A tuple containing the connection and cursor.
     """
 
     # GOOD: disable autocommit in favor of transactions
@@ -277,8 +284,14 @@ def new_postgres_connection() -> tuple[psycopg.Connection, psycopg.Cursor]:
 # GOOD: persistence function takes database client as first argument
 # GOOD: type hints for input and output values
 def get_user_by_id(cursor: psycopg.Cursor, user_id: int) -> User | None:
-    """
-    Retrieves a user by their ID.
+    """Retrieves a user by their ID.
+
+    Args:
+        cursor (psycopg.Cursor): The database cursor.
+        user_id (int): The ID of the user to retrieve.
+
+    Returns:
+        User | None: The user object if found, otherwise None.
     """
 
     cursor.execute(
@@ -291,8 +304,15 @@ def get_user_by_id(cursor: psycopg.Cursor, user_id: int) -> User | None:
 
 
 def create_user(cursor: psycopg.Cursor, username: str, email: str) -> str:
-    """
-    Creates a new user.
+    """Creates a new user.
+
+    Args:
+        cursor (psycopg.Cursor): The database cursor.
+        username (str): The username of the new user.
+        email (str): The email of the new user.
+
+    Returns:
+        str: The ID of the newly created user.
     """
 
     user_id = str(uuid4()).replace("-", "")
@@ -313,6 +333,86 @@ def create_user(cursor: psycopg.Cursor, username: str, email: str) -> str:
 
 **SHOULD**: `psycopg` connections should use a `dict_row` cursor factory. This ensures that database operations return a dictionary of column names and values that can be fed directly into `pydantic` models. See `Example 3` for an illustration.
 
+### DynamoDB
+
+**MUST**: DynamoDB persistence layers must be implemented using the `boto3` package. This enforces consistency across all applications.
+
+**SHOULD**: Prefer using `boto3` table resources instead of clients. This ensures that responses from DynamoDB can be passed directly into `pydantic` models without requiring parsing of DynamoDB types. If a `boto3` client is required (such as when using `BatchGetItem`), extract the client from the table object using `table.meta.client`.
+
+### Example 6
+
+The following example illustrates how to structure DynamoDB persistence layers:
+
+```python
+# GOOD
+# File: dynamodb.py
+import boto3
+from boto3.dynamodb.table import TableResource
+
+from .models import User
+
+
+def get_table(name: str) -> TableResource:
+    """Retrieves a DynamoDB table resource.
+
+    Args:
+        name (str): The name of the table.
+
+    Returns:
+        TableResource: The DynamoDB table resource.
+    """
+
+    return boto3.resource("dynamodb").Table(name)
+
+# GOOD: use table resource rather than client
+# GOOD: return pydantic model
+def get_user(table: TableResource, user_id: str) -> User | None:
+    """Retrieves a user by their ID.
+
+    Args:
+        table (TableResource): The DynamoDB table resource.
+        user_id (str): The ID of the user to retrieve.
+
+    Returns:
+        User | None: The user object if found, otherwise None.
+    """
+
+    response = table.get_item(
+        Key={
+            "PK": f"USER#{user_id}",
+            "SK": "PROFILE",
+        },
+    )
+
+    if "Item" in response:
+        return User(**response["Item"])
+
+
+# GOOD: batch get items is preferred over multiple get items
+# GOOD: use table resources even if a client is required. extract client from table object using table.meta.client
+def get_multiple_users(table: TableResource, ids: list[str]) -> list[User]:
+    """Retrieves multiple users by their IDs.
+
+    Args:
+        table (TableResource): The DynamoDB table resource.
+        ids (list[str]): A list of user IDs to retrieve.
+
+    Returns:
+        list[User]: A list of user objects.
+    """
+
+    keys = [{"PK": f"USER#{user_id}", "SK": "PROFILE"} for user_id in ids]
+
+    response = table.meta.client.batch_get_item(
+        RequestItems={
+            table.name: {
+                "Keys": keys,
+            }
+        }
+    )
+    return [User(**item) for item in response["Responses"][table.name]]
+```
+
 
 ## REST APIs
 
@@ -320,13 +420,15 @@ def create_user(cursor: psycopg.Cursor, username: str, email: str) -> str:
 
 **MUST**: REST APIs must structure responses in a consistent manner. 
 
+**MUST**: REST APIs must have a version prefix in the URL. This ensures that APIs can be versioned and that old APIs can be deprecated.
+
 **MUST**: Error responses must contain an `error` field, and an optional `details` field. The `error` field must contain a generic error message i.e. "Internal Server Error", "Bad Request" etc. The `details` field should contain additional details about the error where applicable. 
 
 **MUST**: Success responses must return data in a `data` field.
 
 **MUST**: All REST APIs must have an associated `openapi.yaml` file that defines the API contract. This ensures that the API is well-documented.
 
-**SHOULD**: REST API endpoints should follow a dependency injection pattern. Prefer initialization of dependencies within the endpoint handler rather than within business logic. See `Example 6` for an illustration.
+**SHOULD**: REST API endpoints should follow a dependency injection pattern. Prefer initialization of dependencies within the endpoint handler rather than within business logic. See `Example 7` for an illustration.
 
 **SHOULD**: REST APIs should be implemented using the `FastAPI` package.
 
@@ -334,11 +436,11 @@ def create_user(cursor: psycopg.Cursor, username: str, email: str) -> str:
 
 **SHOULD**: Registration of endpoints should be kept minimal and only contain the basic logic for routing, creation of depedencies such as database clients, and error handling. All business logic should be implemented outside of the endpoint definition.
 
-**SHOULD**: Database clients and other dependencies should be initialized within the endpoint handler, when the endpoint is invoked. Prefer a new database/client/service connection for each request as this avoids long-lived connections and reduces the risk of connection leaks. See `Example 6` for an illustration.
+**SHOULD**: Database clients and other dependencies should be initialized within the endpoint handler, when the endpoint is invoked. Prefer a new database/client/service connection for each request as this avoids long-lived connections and reduces the risk of connection leaks. See `Example 7` for an illustration.
 
 **SHOULD**: DTO datamodels should be defined separately from domain models using the `pydantic` package, and should include validation for all fields.
 
-**SHOULD**: Each endpoint should have a `endpoint_name` function. It should return a `JSONResponse` instance that contains the HTTP response code, and body. See `Example 6` for an illustration.
+**SHOULD**: Each endpoint should have a `endpoint_name` function. It should return a `JSONResponse` instance that contains the HTTP response code, and body. See `Example 7` for an illustration.
 
 **SHOULD**: `Depends` should be used to inject dependencies into endpoint handlers. This ensures that dependencies are initialized only once per request.
 
@@ -348,7 +450,7 @@ def create_user(cursor: psycopg.Cursor, username: str, email: str) -> str:
 
 **SHOULD**: When returning `pydantic` models, use the `model_dump` method with the `mode="json"` argument to ensure that the model is serialized to a JSON object.
 
-### Example 6
+### Example 7
 
 The following example illustrates how a REST API should be structured.
 
@@ -380,23 +482,42 @@ APP.add_middleware(
 
 
 def get_current_user(request: Request) -> User:
-    """Retrieves the current user from the request."""
+    """Retrieves the current user from the request.
+
+    Args:
+        request (Request): The incoming request.
+
+    Returns:
+        User: The current user.
+    """
 
     return request.state.user
 
 
-@APP.get("/health")
+@APP.get("/v1/health")
 def health() -> JSONResponse: # GOOD: Return type is specified.
-    """Handles health checks by pinging the database."""
+    """Handles health checks by pinging the database.
+
+    Returns:
+        JSONResponse: A JSON response indicating the health status.
+    """
 
     LOGGER.info("Processing new request.", method="GET", endpoint="/health")
     # GOOD: Use JSONResponse to return a JSON response.
     return JSONResponse(status_code=200, content={"data": "ok"})
 
 
-@APP.get("/users/me")
+@APP.get("/v1/users/me")
 def get_user(db: psycopg.Cursor = Depends(new_postgres_connection), user: User = Depends(get_current_user)) -> JSONResponse: # GOOD: Return type is specified.
-    """Handles the retrieval of the current user."""
+    """Handles the retrieval of the current user.
+
+    Args:
+        db (psycopg.Cursor): The database cursor.
+        user (User): The current user.
+
+    Returns:
+        JSONResponse: A JSON response containing the user data.
+    """
 
     # GOOD: logging is implemented using structlog.
     LOGGER.info("Processing new request.", method="GET", endpoint="/users/me", user_id=user.user_id)
@@ -413,11 +534,19 @@ def get_user(db: psycopg.Cursor = Depends(new_postgres_connection), user: User =
     return JSONResponse(status_code=200, content={"data": data})
 
 
-@APP.post("/users")
+@APP.post("/v1/users")
 # GOOD: Dependencies are injected via Depends.
 # GOOD: DTO is defined separately from domain model.
 def create_user(user: NewUserRequest, db: psycopg.Cursor = Depends(new_postgres_connection)) -> JSONResponse: # GOOD: Return type is specified.
-    """Handles the creation of a new user."""
+    """Handles the creation of a new user.
+
+    Args:
+        user (NewUserRequest): The new user request object.
+        db (psycopg.Cursor): The database cursor.
+
+    Returns:
+        JSONResponse: A JSON response containing the ID of the newly created user.
+    """
 
     # GOOD: logging is implemented using structlog.
     LOGGER.info("Processing new request.", method="POST", endpoint="/users", user=user)

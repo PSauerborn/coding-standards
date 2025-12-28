@@ -1,5 +1,4 @@
 # Golang Code Standards
-**MUST**: Use spaces for indentation instead of tabs.
 
 This document contains coding standards for Golang projects. The document outlines a series of **MUST** and **SHOULD** statements. **MUST** statements are mandatory and must be followed. **SHOULD** statements are best practices and should be implemented where reasonable. Examples should be treated as **SHOULD** statements.
 
@@ -10,6 +9,8 @@ If a user request contradicts a **SHOULD** statement, follow the user request. I
 **MUST**: Golang applications must use go modules.
 
 **MUST**: Golang version 1.25 or higher must be used.
+
+**MUST**: Use spaces for indentation instead of tabs.
 
 **MUST**: All functions must have a doc string that clearly describes the purpose of the function, its parameters, and its return values. The first word of every doc string should be the name of the function. This ensures that the doc string is easily searchable.
 
@@ -25,13 +26,13 @@ If a user request contradicts a **SHOULD** statement, follow the user request. I
 
 **MUST**: Data models must be defined in a dedicated file.
 
-**MUST**: Data models must have validation rules defined. Validation should be done via the `github.com/go-playground/validator/v10` package.
+**SHOULD**: Data models should be used throught the application to group related data. This ensures that the code base is more type-safe, and makes the code more readable.
+
+**SHOULD**: Data models should have validation rules in place. Validation should be done via the `github.com/go-playground/validator/v10` package. At minimum, fields that are required should be tagged with `validate:"required"`.
 
 **SHOULD**: DTOs and domain models should be defined separately. This ensures that API logic is decoupled from database/storage logic.
 
 **SHOULD**: DTOs should have strict validation rules to ensure that they are valid before being used in business logic. This ensures that external data is validated before being used in business logic.
-
-**SHOULD**: Domain models that belong to entities stored in a database should all have a `createdAt`, `updatedAt`, `createdBy` and `lastUpdatedBy` field.
 
 ## Error Handling
 
@@ -104,7 +105,7 @@ func LoadConfig() *Config {
 
 ## Unittests
 
-**MUST**: Unittests must be implemented for all business logic.
+**MUST**: Unittests must be implemented for most business logic. 100% coverage is unrealistic, but unittests should be comprehensive and cover at least 80% of the code as a guideline.
 
 **MUST**: Unittests must be implemented using the `testing` package.
 
@@ -118,6 +119,37 @@ func LoadConfig() *Config {
 
 **SHOULD**: Additional test data used to test business logic (PDF, CSV files etc) should be stored in a separate `tests/data` directory. This ensures that test files do not become cluttered with test data.
 
+**SHOULD**: Unittests should make use of the `github.com/stretchr/testify/assert` package to make assertions.
+
+### Example 2
+
+The following illustrates unittests for a `SomeFunction` defined in `main.go`.
+
+```go
+// GOOD
+// File: main_test.go
+import (
+    "testing"
+    "github.com/stretchr/testify/assert"
+)
+
+func TestSomeFunction(t *testing.T) {
+    // GOOD: unittests should be grouped by test case
+    t.Run("test case 1", func(t *testing.T) {
+        result, err := SomeFunction()
+
+        // GOOD: unittests should make use of the assert package
+        assert.NoError(t, err)
+        assert.Equal(t, expected, result)
+    })
+
+    t.Run("test case 2", func(t *testing.T) {
+        result, err := SomeFunction()
+        assert.Error(t, err)
+    })
+}
+```
+
 ## Logging
 
 **MUST**: All applications must implement logging. Logging should be present at all levels of the application.
@@ -128,7 +160,7 @@ func LoadConfig() *Config {
 
 **SHOULD**: Logging should be handled via the `github.com/sirupsen/logrus` package, ideally using the `logrus.JSONFormatter`. 
 
-### Example 2
+### Example 3
 
 The following example illustrates a logging implementation.
 
@@ -171,17 +203,17 @@ func main() {
 
 **MUST**: Persistence layers must have their own dedicated file that contains all storage logic.
 
-**MUST**: Persistence layers must be implemented via an interface. Each interface must have an associated `New` function that returns a new instance of the interface, which should accept connection parameters as arguments. Database clients must be initialized in the `New` function and set as a field of the interface implementation. See `Example 2` for an illustration.
+**MUST**: Persistence layers must be implemented via an interface. Each interface must have an associated `New` function that returns a new instance of the interface, which should accept connection parameters as arguments. Database clients must be initialized in the `New` function and set as a field of the interface implementation. See `Example 4` for an illustration.
 
 **SHOULD**: Prefer transactional operations that execute multiple database operations as a single unit of work. This ensures that database operations are atomic and consistent, and minimizes the risk of incomplete or inconsistent data.
 
 **SHOULD**: Persistence layers should be implemented using the repository pattern.
 
-**SHOULD**: Persistence layers should should accept and return domain models where multiple input and return values are required. See `Example 2` for an illustration.
+**SHOULD**: Persistence layers should return domain models where multiple input and return values are required. See `Example 4` for an illustration.
 
 **SHOULD**: PostgreSQL should be used by default if not otherwise specified.
 
-### Example 3
+### Example 4
 
 The following example illustrates a persistence layer for a generic SQLite database.
 
@@ -268,13 +300,15 @@ func (r ExampleRepository) GetUserById(id string) (User, error) {
 
 **MUST**: REST APIs must structure responses in a consistent manner. 
 
+**MUST**: REST APIs must have a version prefix in the URL. This ensures that APIs can be versioned and that old APIs can be deprecated.
+
 **MUST**: Error responses must contain an `error` field, and an optional `details` field. The `error` field must contain a generic error message i.e. "Internal Server Error", "Bad Request" etc. The `details` field should contain additional details about the error where applicable. 
 
 **MUST**: Success responses must return data in a `data` field.
 
 **MUST**: All REST APIs must have an associated `openapi.yaml` file that defines the API contract. This ensures that the API is well-documented.
 
-**SHOULD**: REST API endpoints should follow a dependency injection pattern. Prefer initialization of dependencies within the endpoint handler rather than within business logic. See `Example 3` for an illustration.
+**SHOULD**: REST API endpoints should follow a dependency injection pattern. Prefer initialization of dependencies within the endpoint handler rather than within business logic. See `Example 5` for an illustration.
 
 **SHOULD**: REST APIs should be implemented using the `github.com/gin-gonic/gin` package.
 
@@ -282,17 +316,17 @@ func (r ExampleRepository) GetUserById(id string) (User, error) {
 
 **SHOULD**: Registration of endpoints should be kept minimal and only contain the basic logic for routing, creation of depedencies such as database clients, and error handling. All business logic should be implemented outside of the endpoint definition.
 
-**SHOULD**: Database clients and other dependencies should be initialized within the endpoint handler, when the endpoint is invoked. Prefer a new database/client/service connection for each request as this avoids long-lived connections and reduces the risk of connection leaks. See `Example 3` for an illustration.
+**SHOULD**: Database clients and other dependencies should be initialized within the endpoint handler, when the endpoint is invoked. Prefer a new database/client/service connection for each request as this avoids long-lived connections and reduces the risk of connection leaks. See `Example 5` for an illustration.
 
 **SHOULD**: DTO structs should be define separately from domain models, and should include validation for all fields. This should be done using the `binding` tag.
 
-**SHOULD**: Each endpoint should have a `EndpointNameHandler` function that takes the `*gin.Context` as the first argument, followed by any additional dependencies such as database clients. It should return a `JSONResponse` struct that contains the HTTP response code, and body. See `Example 3` for an illustration.
+**SHOULD**: Each endpoint should have a `EndpointNameHandler` function that takes the `*gin.Context` as the first argument, followed by any additional dependencies such as database clients. It should return a `JSONResponse` struct that contains the HTTP response code, and body. See `Example 5` for an illustration.
 
 **SHOULD**: CORS should be enabled for REST APIs by default via the `github.com/gin-contrib/cors` package.
 
 **SHOULD**: Each endpoint should have its own unittest.
 
-### Example 4
+### Example 5
 
 The following example illustrates how a REST API should be structured.
 
@@ -308,6 +342,7 @@ import (
     log "github.com/sirupsen/logrus"
 )
 
+// GOOD: use structs to define a consistent response format
 type JSONResponse struct {
     Code int
     Body interface{}
@@ -323,7 +358,7 @@ func NewRouter() *gin.Engine {
     router.Use(cors.Default())
 
     // GOOD: endpoint registration is kept minimal. Business logic should be in handler.
-    router.GET("/health", func (c *gin.Context) {
+    router.GET("/v1/health", func (c *gin.Context) {
         // GOOD: Database connections are initialized within the endpoint handler
         // for each request
         db, err := sql.Open("sqlite", "./test.db")
@@ -340,7 +375,7 @@ func NewRouter() *gin.Engine {
     })
 
     // GOOD: endpoint registration is kept minimal. Business logic should be in handler.
-    router.POST("/resource", func (c *gin.Context) {
+    router.POST("/v1/resource", func (c *gin.Context) {
         // GOOD: Database connections are initialized within the endpoint handler
         // for each request
         db, err := sql.Open("sqlite", "./test.db")
