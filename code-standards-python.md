@@ -1,14 +1,25 @@
 # Python Code Standards
 
-This document contains coding standards for Python projects. The document outlines a series of **MUST** and **SHOULD** statements. **MUST** statements are mandatory and must be followed. **SHOULD** statements are best practices and should be implemented where reasonable. Examples should be treated as **SHOULD** statements.
+# 1. Meta Rules
+
+You are a Senior Software Engineer acting as an autonomous coding agent.
+1.  **Strict Adherence**: You MUST follow all **MUST** rules below.
+2.  **Pattern Matching**: When writing code, check the "Example" sections. If you are tempted to write code that looks like a "BAD" example, STOP and refactor to match the "GOOD" example.
+3.  **Explanation**: If you deviate from a **SHOULD** rule, you must explicitly state why in your reasoning trace.
 
 If a user request contradicts a **SHOULD** statement, follow the user request. If it contradicts a **MUST** statement, ask for confirmation.
 
-## General
+# 2. Versions and Tooling
 
 **MUST**: Python version 3.13 or higher must be used.
 
 **MUST**: When in doubt, follow PEP 8.
+
+**SHOULD**: All code should be formatted using `black`.
+
+**SHOULD**: All code should be linted using `flake8`.
+
+# 3. Syntax, Naming & Style
 
 **MUST**: All file and functions names must be snake_case. This ensures adherence to PEP 8.
 
@@ -22,15 +33,11 @@ If a user request contradicts a **SHOULD** statement, follow the user request. I
 
 **SHOULD**: Prefer a functional approach when possible.
 
-**SHOULD**: All code should be formatted using `black`.
-
-**SHOULD**: All code should be linted using `flake8`.
-
 **SHOULD**: Prefer a single return type per function. This ensures that function complexity is kept minimal.
 
 **SHOULD**: Source code should be placed in a `src` directory. A single `main.py` or `app.py` file should serve as the entry point at the root of the `src` directory.
 
-## Data Models and Validation
+# 4. Data Models and Validation
 
 **MUST**: Data models must be defined in a dedicated `models.py` file.
 
@@ -74,7 +81,7 @@ class User(BaseModel):
 
 ```
 
-## Configuration
+# 5. Configuration
 
 **MUST**: Configuration must be handled via environment variables. This ensures that configuration is decoupled from code and can be easily changed without modifying code.
 
@@ -114,7 +121,7 @@ CONFIG = Config()
 
 ```
 
-## Unittests
+# 6. Unittests
 
 **MUST**: Unittests must be implemented for all business logic.
 
@@ -183,7 +190,7 @@ def mock_table():
 
 ```
 
-## Logging
+# 7. Logging
 
 **MUST**: All applications must implement logging. Logging should be present at all levels of the application.
 
@@ -231,7 +238,35 @@ if __name__ == "__main__":
 
 ```
 
-## Persistence Layers
+The following example illustrates how logging should NOT be implemeted:
+
+```python
+# BAD
+# File: main.py
+
+def add(a: int, b: int) -> int:
+    """Adds two numbers.
+
+    Args:
+        a (int): The first number.
+        b (int): The second number.
+
+    Returns:
+        int: The sum of the two numbers.
+    """
+
+    # BAD: logging not implemented
+    return a + b
+
+
+def main():
+    # BAD: logging should be implemented via structlog
+    print("Application started version 1.0.0")
+    add(1, 2)
+
+```
+
+# 8. Persistence Layers
 
 **MUST**: Persistence layers must have their own dedicated file that contains all storage logic.
 
@@ -325,6 +360,93 @@ def create_user(cursor: psycopg.Cursor, username: str, email: str) -> str:
 
 ```
 
+The following example illustrates how persistence layers should NOT be implemented:
+
+```python
+# BAD
+# File: persistence.py
+import psycopg
+
+
+def new_postgres_connection() -> tuple[psycopg.Connection, psycopg.Cursor]:
+    """Creates a new connection to the PostgreSQL database based on the configuration.
+
+    Returns:
+        tuple[psycopg.Connection, psycopg.Cursor]: A tuple containing the connection and cursor.
+    """
+
+    # BAD: autocommit should be disabled in favor of transactions
+    conn = psycopg.connect(
+        host=CONFIG.POSTGRES_HOST,
+        port=CONFIG.POSTGRES_PORT,
+        user=CONFIG.POSTGRES_USER,
+        password=CONFIG.POSTGRES_PASSWORD,
+        dbname=CONFIG.POSTGRES_DB,
+        autocommit=True,
+    )
+    # BAD: postgresql connections should use dict_row cursor factory
+    return conn, conn.cursor()
+
+
+# BAD: prefer a functional approach over a class
+class Persistence():
+
+    def __init__(self):
+        self.conn, self.cursor = new_postgres_connection()
+
+    def get_user_by_id(self, user_id: int) -> User | None:
+        return get_user_by_id(self.cursor, user_id)
+
+    def create_user(self, username: str, email: str) -> str:
+        return create_user(self.cursor, username, email)
+
+
+
+def create_user(username: str, email: str) -> str:
+    """Creates a new user.
+
+    Args:
+        username (str): The username of the new user.
+        email (str): The email of the new user.
+
+    Returns:
+        str: The ID of the newly created user.
+    """
+
+    # BAD: persistence layers should use dependency injection.
+    # Database connections must NOT be created inside the persistence layer.
+    conn, cursor = new_postgres_connection()
+
+    user_id = str(uuid4()).replace("-", "")
+    cursor.execute(
+        "INSERT INTO users (id, username, email) VALUES (%s, %s, %s) RETURNING *",
+        (user_id, username, email),
+    )
+    user = cursor.fetchone()
+    conn.commit()
+    return user_id
+
+
+# BAD: persistence functions should return pydantic models
+def get_user(user_id: int):
+    """Retrieves a user by their ID.
+
+    Args:
+        user_id (int): The ID of the user to retrieve.
+    """
+
+    # BAD: persistence layers should use dependency injection.
+    # Database connections must NOT be created inside the persistence layer.
+    conn, cursor = new_postgres_connection()
+    cursor.execute(
+        "SELECT * FROM users WHERE id = %s",
+        (user_id,),
+    )
+    user = cursor.fetchone()
+    return user if user else None
+
+```
+
 ### PostgreSQL
 
 **MUST**: PostgreSQL persistence layers must be implemented using the `psycopg` package. This enforces consistency across all applications.
@@ -413,8 +535,55 @@ def get_multiple_users(table: TableResource, ids: list[str]) -> list[User]:
     return [User(**item) for item in response["Responses"][table.name]]
 ```
 
+The following example illustrates how NOT to implement DynamoDB persistence layers:
 
-## REST APIs
+```python
+# BAD
+# File: persistence.py
+
+# BAD: using clients instead of table resources prevents direct use of pydantic models
+def get_user(client: boto3.client, user_id: str) -> dict | None:
+    """Retrieves a user by their ID.
+
+    Args:
+        client (boto3.client): The DynamoDB client.
+        user_id (str): The ID of the user to retrieve.
+
+    Returns:
+        dict | None: The user object if found, otherwise None.
+    """
+
+    response = client.get_item(
+        TableName="users",
+        Key={
+            "PK": f"USER#{user_id}",
+            "SK": "PROFILE",
+        },
+    )
+
+    # BAD: returning raw data instead of pydantic models makes it harder to enforce data consistency and validation
+    if "Item" in response:
+        return response["Item"]
+
+
+def get_users() -> list[dict]:
+    """Retrieves all users."""
+
+    # BAD: using clients instead of table resources prevents direct use of pydantic models
+    # BAD: dependency injection is not used
+    client = boto3.client("dynamodb")
+
+    # BAD: table scans are very slow, expensive, and should be avoided in 
+    # favor of indexes
+    response = client.scan(
+        TableName="users",
+    )   
+
+    # BAD: returning raw data instead of pydantic models makes it harder to enforce data consistency and validation
+    return response["Items"]
+```
+
+# 9. REST APIs
 
 **MUST**: REST APIs must accept and return JSON data. Exceptions can be made for file uploads and responses where binary data is required. 
 
@@ -563,7 +732,113 @@ if __name__ == "__main__":
     uvicorn.run(APP, host="0.0.0.0", port=CONFIG.PORT)
 ```
 
-## Dockerfiles
+
+The following example illustrates how REST APIs should NOT be structure:
+
+```python
+# GOOD
+# main.py
+import psycopg
+from fastapi import FastAPI, Request
+
+from models import User, NewUserRequest
+from persistence import new_postgres_connection, create_user
+from config import CONFIG
+
+
+APP = FastAPI()
+# BAD: CORS is not enabled.
+
+
+def get_current_user(request: Request) -> User:
+    """Retrieves the current user from the request.
+
+    Args:
+        request (Request): The incoming request.
+
+    Returns:
+        User: The current user.
+    """
+
+    return request.state.user
+
+
+@APP.get("/v1/health")
+def health(): # BAD: Return type is not specified.
+    """Handles health checks by pinging the database."""
+
+    # BAD: logging is not implemented.
+    print("Processing new request.", method="GET", endpoint="/health")
+
+    # BAD: Use JSONResponse to return a JSON response.
+    # BAD: response does not match defined contract.
+    return {"msg": "ok"}
+
+
+@APP.get("/v1/users/me")
+def get_user():
+    """Handles the retrieval of the current user.
+
+    Args:
+        db (psycopg.Cursor): The database cursor.
+        user (User): The current user.
+
+    Returns:
+        JSONResponse: A JSON response containing the user data.
+    """
+
+    # BAD: Dependencies should be injected via Depends.
+    user = get_current_user(request)
+    # BAD: logging is not implemented.
+    print(f"Processing request to retrieve user: {user}")
+
+    # BAD: Dependencies should be injected via Depends.
+    db = new_postgres_connection()
+    
+    user = get_user(db, user.user_id)
+    if user is None:
+        print("User not found.", user_id=user.user_id)
+        return JSONResponse(status_code=404, content={"error": "User not found"})
+    
+    print(f"User retrieved: {user}")
+
+    # BAD: pydantic models should be serialized with model_dump(mode="json") before being returned
+    # BAD: JSONResponse should be used to return a JSON response.
+    # BAD: response does not match defined contract.
+    return user
+
+
+@APP.post("/v1/users")
+# BAD: Dependencies should be injected via Depends.
+# BAD: DTO is defined separately from domain model.
+def create_user(user: User): # BAD: Return type is not specified.
+    """Handles the creation of a new user.
+
+    Args:
+        user (User): The new user request object.
+    """
+
+    # BAD: Dependencies should be injected via Depends.
+    db = new_postgres_connection()
+
+    # BAD: logging should be implemented using structlog.
+    print(f"Processing request to create new user: {user}")
+    
+    user_id = create_user(db, user.username, user.email)
+    print(f"User created with id: {user_id}")
+
+    # BAD: JSONResponse should be used to return a JSON response.
+    return {"data": user_id}
+
+
+if __name__ == "__main__":
+    import uvicorn
+    
+    uvicorn.run(APP, host="0.0.0.0", port=CONFIG.PORT)
+```
+
+
+# 10. Dockerfiles
 
 **MUST**: Dockerfiles must be provided for all applications. 
 
