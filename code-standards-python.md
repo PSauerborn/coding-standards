@@ -1,0 +1,480 @@
+# Python Code Standards
+
+This document contains coding standards for Python projects. The document outlines a series of **MUST** and **SHOULD** statements. **MUST** statements are mandatory and must be followed. **SHOULD** statements are best practices and should be implemented where reasonable. Examples should be treated as **SHOULD** statements.
+
+If a user request contradicts a **SHOULD** statement, follow the user request. If it contradicts a **MUST** statement, ask for confirmation.
+
+## General
+
+**MUST**: Python version 3.13 or higher must be used.
+
+**MUST**: All file and functions names must be snake_case. This ensures adherence to PEP 8.
+
+**MUST**: All functions must have a doc string that clearly describes the purpose of the function, its parameters, and its return values. The first word of every doc string should be the name of the function. This ensures that the doc string is easily searchable.
+
+**MUST**: Type hints must be provided for all function parameters and return values.
+
+**MUST**: Use spaces for indentation instead of tabs.
+
+**SHOULD**: Prefer a functional approach when possible.
+
+**SHOULD**: PEP8 should be followed unless it contradicts a **MUST** statement, or following a user request.
+
+**SHOULD**: All code should be formatted using `black`.
+
+**SHOULD**: All code should be linted using `flake8`.
+
+**SHOULD**: Prefer a single return type per function. This ensures that function complexity is kept minimal.
+
+**SHOULD**: Source code should be placed in a `src` directory. A single `main.py` or `app.py` file should serve as the entry point at the root of the `src` directory.
+
+## Data Models and Validation
+
+**MUST**: Data models must be defined in a dedicated `models.py` file.
+
+**MUST**: Data models must be implenented using `pydantic`. 
+
+**SHOULD**: An alias should be defined for fields using the `pydantic` `Field` class if applicable. Only add aliases if it is necessary to ensure that the model is compatible with either the API or the database schema.
+
+**SHOULD**: DTOs and domain models should be defined separately. This ensures that API logic is decoupled from database/storage logic.
+
+**SHOULD**: DTOs should have strict validation rules to ensure that they are valid before being used in business logic. This ensures that external data is validated before being used in business logic.
+
+**SHOULD**: Domain models that belong to entities stored in a database should all have a `created_at`, `updated_at`, `created_by` and `last_updated_by` field.
+
+**SHOULD**: Prefer length-constrained strings over just `str` types in datamodels. `None` values should generally be preferred over empty strings. This ensures that data models are more type-safe and less prone to errors.
+
+## Example 1
+
+The following illustrates a data model that follows the above recommendations.
+
+```python
+# GOOD
+# File: models.py
+from datetime import datetime
+
+from pydantic import BaseModel, StringConstraints, Field
+from typing_extensions import Annotated
+
+
+# GOOD: User is a domain model that implements a pydantic model
+# GOOD: Adequate constraints are used for string fields
+# GOOD: Aliases are used for fields to ensure that the model is compatible with the API
+# GOOD: Default values are used for optional fields
+class User(BaseModel):
+    user_id: Annotated[str, StringConstraints(min_length=1), Field(alias="userId")] 
+    username: Annotated[str, StringConstraints(min_length=1)] 
+    email: Annotated[str, StringConstraints(min_length=1)] 
+    created_at: Annotated[datetime, Field(alias="createdAt")] 
+    updated_at: Annotated[datetime | None, Field(alias="updatedAt", default=None)]
+    created_by: Annotated[str, StringConstraints(min_length=1), Field(alias="createdBy")] 
+    last_updated_by: Annotated[str, StringConstraints(min_length=1), Field(alias="lastUpdatedBy")] 
+
+```
+
+## Configuration
+
+**MUST**: Configuration must be handled via environment variables. This ensures that configuration is decoupled from code and can be easily changed without modifying code.
+
+**MUST**: Configuration must be validated at application startup to ensure that all required variables are set. This ensures that the application fails fast if a required variable is not set.
+
+**MUST**: Configuration settings must be defined in a dedicated `config.py` file.
+
+**MUST**: Configuration must be parsed and validated using the `pydantic_settings` package. A `Config` class must be defined in the `config.py` file that implements the `BaseSettings` class.
+
+**MUST**: A global instance of the `Config` class must be created and made available to the application. This ensures that configuration settings can be easily accessed from anywhere in the application, and that configuration settings are validated at application startup.
+
+### Example 2
+
+The following example illustrates how application configuration should be handled.
+
+```python
+# GOOD
+# File: config.py
+from pydantic import StringConstraints, Field, SecretStr
+from pydantic_settings import BaseSettings
+from typing_extensions import Annotated
+
+
+# GOOD: Config is a pydantic model that defines the configuration for the application
+# GOOD: use adequate constraints for string fields
+class Config(BaseSettings):
+    LOG_LEVEL: Annotated[str, StringConstraints(min_length=1), Field(default="INFO")]
+    PG_PORT: Annotated[int, Field(default=5432)]
+    PG_HOST: Annotated[str, StringConstraints(min_length=1), Field(default="localhost")]
+    PG_USER: Annotated[str, StringConstraints(min_length=1)]
+    PG_PASSWORD: Annotated[SecretStr, StringConstraints(min_length=1)]
+    PG_DB: Annotated[str, StringConstraints(min_length=1), Field(default="postgres")]
+
+
+# GOOD: CONFIG is a global instance of the Config class that is made available to the application
+CONFIG = Config()
+
+```
+
+## Unittests
+
+**MUST**: Unittests must be implemented for all business logic.
+
+**MUST**: Unittests must be stored in a `tests` directory.
+
+**MUST**: Unittests must be implemented using the `pytest` package.
+
+**MUST**: Each `.py` file should have a corresponding `_test.py` file that contains unittests.
+
+**SHOULD**: The `tests` directory should contain a `conftest.py` file that contains common test fixtures.
+
+**SHOULD**: Each function should have a corresponding unittest. Unittests should be named in the format `test_function_name`.
+
+**SHOULD**: Unittests should mock database and other service connections rather than using real connections. Connection to live databases should only be used in integration tests. This ensures that unittests are fast and do not depend on external services.
+
+**SHOULD**: Additional test data used to test business logic (PDF, CSV files etc) should be stored in a separate `tests/data` directory. This ensures that test files do not become cluttered with test data.
+
+### AWS Applications
+
+**MUST**: Any applications using AWS resources must use the `moto` package to mock AWS resources.
+
+**MUST**: Any AWS resources that can be implemented using the `moto` package must be. This ensures that unittests can test interaction with AWS resources as well as possible.
+
+**MUST**: When using DynamoDB, a `tests/data/table_schema.json` file must be provided that defines the schema of the table.
+
+**MUST**: When using DynamoDB, a `tests/data/initial_db_items.json` file must be provided that defines the initial items in the table.
+
+**MUST**: When using DynamoDB, a `mock_table` `pytest` fixture should be implemented in the `conftest.py` file. This should create the table using the schema defined in `tests/data/table_schema.json` and populate it with the items defined in `tests/data/initial_db_items.json`. See Example 3 for an implementation.
+
+### Example 3
+
+The following example illustrates a unittest implementation for a function that uses DynamoDB.
+
+```python
+# GOOD
+# File: tests/confest.py
+import json
+
+import pytest
+import boto3
+from moto import mock_aws
+
+
+@pytest.fixture
+# GOOD: use moto to mock AWS resources
+def mock_dynamodb_resource():
+    with mock_aws():
+        yield boto3.resource("dynamodb")
+
+@pytest.fixture
+# GOOD: create table using schema defined in tests/data/table_schema.json
+# GOOD: populate table with items defined in tests/data/initial_db_items.json
+def mock_table():
+    with open("tests/data/table_schema.json", "r") as f:
+        table_schema = json.load(f)
+
+    table = mock_dynamodb_resource.create_table(**table_schema)
+
+    with open("tests/data/initial_db_items.json", "r") as f:
+        initial_db_items = json.load(f)
+
+    for item in initial_db_items:
+        table.put_item(Item=item)
+    
+    yield table
+
+```
+
+## Logging
+
+**MUST**: All applications must implement logging. Logging should be present at all levels of the application.
+
+**MUST**: Logging must follow a structured logging format. All log messages should contain at minimum the timestamp, log level, and message.
+
+**SHOULD**: Logging should be handled via the `structlog` package. See Example 4 for an implementation.
+
+### Example 4
+
+The following example illustrates a logging implementation.
+
+```python
+# GOOD
+# File: main.py
+import structlog # GOOD: use structlog for logging
+
+LOGGER = structlog.get_logger()
+
+
+def add(a: int, b: int) -> int:
+    """
+    Adds two numbers.
+    """
+
+    # GOOD: implement logging at all levels of the application
+    LOGGER.info("Adding two numbers", a=a, b=b)
+    return a + b
+
+
+def main():
+    # GOOD: implement logging at all levels of the application
+    LOGGER.info("Application started", application="my_app", version="1.0.0")
+
+    add(1, 2)
+
+
+if __name__ == "__main__":
+    main()
+
+```
+
+## Persistence Layers
+
+**MUST**: Persistence layers must have their own dedicated file that contains all storage logic.
+
+**SHOULD**: Prefer transactional operations that execute multiple database operations as a single unit of work. This ensures that database operations are atomic and consistent, and minimizes the risk of incomplete or inconsistent data.
+
+**SHOULD**: Prefer a functional approach when implementing persistence layers.
+
+**SHOULD**: Persistence layers should consist of a series of functions that take the database client as the first argument, then execute any required database operations.
+
+**SHOULD**: Persistence layers should should accept and return domain models where multiple input and return values are required. See `Example 5` for an illustration.
+
+**SHOULD**: PostgreSQL should be used by default if not otherwise specified.
+
+### Example 5
+
+The following example illustrates a persistence layer for a generic PostgreSQL database.
+
+```python
+# GOOD
+# File: persistence.py
+from uuid import uuid4
+
+import psycopg 
+from psycopg.rows import dict_row
+
+from .config import CONFIG
+from .models import User
+
+
+def new_postgres_connection() -> tuple[psycopg.Connection, psycopg.Cursor]:
+    """
+    Creates a new connection to the PostgreSQL database
+    based on the configuration.
+    """
+
+    # GOOD: disable autocommit in favor of transactions
+    conn = psycopg.connect(
+        host=CONFIG.POSTGRES_HOST,
+        port=CONFIG.POSTGRES_PORT,
+        user=CONFIG.POSTGRES_USER,
+        password=CONFIG.POSTGRES_PASSWORD,
+        dbname=CONFIG.POSTGRES_DB,
+        autocommit=False,
+    )
+    # GOOD: use dict_row cursor factory
+    return conn, conn.cursor(row_factory=dict_row)
+
+
+# GOOD: persistence function takes database client as first argument
+# GOOD: type hints for input and output values
+def get_user_by_id(cursor: psycopg.Cursor, user_id: int) -> User | None:
+    """
+    Retrieves a user by their ID.
+    """
+
+    cursor.execute(
+        "SELECT * FROM users WHERE id = %s",
+        (user_id,),
+    )
+    user = cursor.fetchone()
+    # GOOD: return pydantic model
+    return User(**user) if user else None
+
+
+def create_user(cursor: psycopg.Cursor, username: str, email: str) -> str:
+    """
+    Creates a new user.
+    """
+
+    user_id = str(uuid4()).replace("-", "")
+    cursor.execute(
+        "INSERT INTO users (id, username, email) VALUES (%s, %s, %s) RETURNING *",
+        (user_id, username, email),
+    )
+    user = cursor.fetchone()
+    return user_id
+
+```
+
+### PostgreSQL
+
+**MUST**: PostgreSQL persistence layers must be implemented using the `psycopg` package. This enforces consistency across all applications.
+
+**SHOULD**: Autocommit should be disabled by default in favor of transactions. This ensures that database operations are atomic and consistent and minimizes the risk of incomplete or inconsistent data.
+
+**SHOULD**: `psycopg` connections should use a `dict_row` cursor factory. This ensures that database operations return a dictionary of column names and values that can be fed directly into `pydantic` models. See `Example 3` for an illustration.
+
+
+## REST APIs
+
+**MUST**: REST APIs must accept and return JSON data. Exceptions can be made for file uploads and responses where binary data is required. 
+
+**MUST**: REST APIs must structure responses in a consistent manner. 
+
+**MUST**: Error responses must contain an `error` field, and an optional `details` field. The `error` field must contain a generic error message i.e. "Internal Server Error", "Bad Request" etc. The `details` field should contain additional details about the error where applicable. 
+
+**MUST**: Success responses must return data in a `data` field.
+
+**MUST**: All REST APIs must have an associated `openapi.yaml` file that defines the API contract. This ensures that the API is well-documented.
+
+**SHOULD**: REST API endpoints should follow a dependency injection pattern. Prefer initialization of dependencies within the endpoint handler rather than within business logic. See `Example 6` for an illustration.
+
+**SHOULD**: REST APIs should be implemented using the `FastAPI` package.
+
+**SHOULD**: REST APIs should be run using `uvicorn`.
+
+**SHOULD**: Registration of endpoints should be kept minimal and only contain the basic logic for routing, creation of depedencies such as database clients, and error handling. All business logic should be implemented outside of the endpoint definition.
+
+**SHOULD**: Database clients and other dependencies should be initialized within the endpoint handler, when the endpoint is invoked. Prefer a new database/client/service connection for each request as this avoids long-lived connections and reduces the risk of connection leaks. See `Example 6` for an illustration.
+
+**SHOULD**: DTO structs should be defined separately from domain models using the `pydantic` package, and should include validation for all fields.
+
+**SHOULD**: Each endpoint should have a `endpoint_name` function. It should return a `JSONResponse` struct that contains the HTTP response code, and body. See `Example 6` for an illustration.
+
+**SHOULD**: `Depends` should be used to inject dependencies into endpoint handlers. This ensures that dependencies are initialized only once per request.
+
+**SHOULD**: CORS should be enabled for REST APIs by default via the `fastapi.middleware.cors` package.
+
+**SHOULD**: Each endpoint should have its own unittest.
+
+**SHOULD**: When returning `pydantic` models, use the `model_dump` method with the `mode="json"` argument to ensure that the model is serialized to a JSON object.
+
+### Example 6
+
+The following example illustrates how a REST API should be structured.
+
+```python
+# GOOD
+# main.py
+import structlog
+import psycopg
+from fastapi import FastAPI, Depends, Request
+from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
+
+from models import User, NewUserRequest
+from persistence import new_postgres_connection, create_user
+from config import CONFIG
+
+LOGGER = structlog.get_logger()
+
+
+APP = FastAPI()
+# GOOD: CORS is enabled by default.
+APP.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+def get_current_user(request: Request) -> User:
+    """Retrieves the current user from the request."""
+
+    return request.state.user
+
+
+@APP.get("/health")
+def health() -> JSONResponse: # GOOD: Return type is specified.
+    """Handles health checks by pinging the database."""
+
+    LOGGER.info("Processing new request.", method="GET", endpoint="/health")
+    # GOOD: Use JSONResponse to return a JSON response.
+    return JSONResponse(status_code=200, content={"data": "ok"})
+
+
+@APP.get("/users/me")
+def get_user(db: psycopg.Cursor = Depends(new_postgres_connection), user: User = Depends(get_current_user)) -> JSONResponse: # GOOD: Return type is specified.
+    """Handles the retrieval of the current user."""
+
+    # GOOD: logging is implemented using structlog.
+    LOGGER.info("Processing new request.", method="GET", endpoint="/users/me", user_id=user.user_id)
+    
+    user = get_user(db, user.user_id)
+    if user is None:
+        LOGGER.error("User not found.", user_id=user.user_id)
+        return JSONResponse(status_code=404, content={"error": "User not found"})
+    
+    LOGGER.info("User retrieved.", user=user)
+
+    # GOOD: use model_dump to serialize pydantic model to json
+    data = user.model_dump(mode="json")
+    return JSONResponse(status_code=200, content={"data": data})
+
+
+@APP.post("/users")
+# GOOD: Dependencies are injected via Depends.
+# GOOD: DTO is defined separately from domain model.
+def create_user(user: NewUserRequest, db: psycopg.Cursor = Depends(new_postgres_connection)) -> JSONResponse: # GOOD: Return type is specified.
+    """Handles the creation of a new user."""
+
+    # GOOD: logging is implemented using structlog.
+    LOGGER.info("Processing new request.", method="POST", endpoint="/users", user=user)
+    
+    user_id = create_user(db, user.username, user.email)
+    LOGGER.info("User created.", user_id=user_id)
+    
+    return JSONResponse(status_code=201, content={"data": user_id})
+
+
+if __name__ == "__main__":
+    import uvicorn
+    
+    uvicorn.run(APP, host="0.0.0.0", port=CONFIG.PORT)
+```
+
+## Dockerfiles
+
+**MUST**: Dockerfiles must be provided for all applications. 
+
+**MUST**: Dockerfiles must be implemented as multi-stage builds. 
+
+**MUST**: Images must be built for AMD linux architecture. Use the `--platform linux/amd64` flag to specify the architecture when building the image. Additionally, the `--provenance=false` flag must be used to disable provenance.
+
+**MUST**: Non-essential files should be excluded from the final image. This ensures that the final image is as small as possible.
+
+**SHOULD**: Dockerfiles should consist of two stages. The first stage should run unittests, the second stage should build the application and run the application. The runtime image should be as small as possible. Prefer a smaller image over a larger image. See `Example 7` for an illustration.
+
+**SHOULD**: The runtime image should be based on a slim image. Prefer debian based images over alpine based images. This avoids issues with missing C libraries and bindings when installing dependencies. See `Example 7` for an illustration.
+
+### Example 7
+
+The following example shows a minimal dockerfile for a python application that implements a `tests` and a `runtime` stage. Note that a smaller runtime image is used.
+
+```dockerfile
+# GOOD: Use bookworm as base image for tests
+FROM python:3.13-bookworm AS tests
+
+COPY requirements.txt ./
+COPY tests/requirements.txt ./requirements-tests.txt
+
+RUN pip install -U pip && \
+    pip install -r requirements.txt && \
+    pip install -r requirements-tests.txt
+
+COPY src ./
+COPY tests ./tests
+
+CMD ["pytest", "-vv"]
+
+# GOOD: Use slim as base image for runtime
+FROM python:3.13-slim AS runtime
+
+COPY requirements.txt ./
+
+RUN pip install -U pip && \
+    pip install -r requirements.txt
+
+COPY src ./
+
+CMD ["python", "src/main.py"]
+```

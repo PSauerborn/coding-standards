@@ -9,6 +9,8 @@ If a user request contradicts a **SHOULD** statement, follow the user request. I
 
 **MUST**: Golang applications must use go modules.
 
+**MUST**: Golang version 1.25 or higher must be used.
+
 **MUST**: All functions must have a doc string that clearly describes the purpose of the function, its parameters, and its return values. The first word of every doc string should be the name of the function. This ensures that the doc string is easily searchable.
 
 **MUST**: Filename must all be snake_case.
@@ -170,6 +172,8 @@ func main() {
 **MUST**: Persistence layers must have their own dedicated file that contains all storage logic.
 
 **MUST**: Persistence layers must be implemented via an interface. Each interface must have an associated `New` function that returns a new instance of the interface, which should accept connection parameters as arguments. Database clients must be initialized in the `New` function and set as a field of the interface implementation. See `Example 2` for an illustration.
+
+**SHOULD**: Prefer transactional operations that execute multiple database operations as a single unit of work. This ensures that database operations are atomic and consistent, and minimizes the risk of incomplete or inconsistent data.
 
 **SHOULD**: Persistence layers should be implemented using the repository pattern.
 
@@ -433,6 +437,10 @@ func main() {
 
     router := NewRouter()
 
+    log.WithFields(log.Fields{
+        "port": ":8080",
+    }).Info("starting application")
+
     if err := router.Run(":8080"); err != nil {
         // GOOD: panic is used for critical errors only in top level functions
         log.WithError(err).Fatal("failed to run server")
@@ -458,6 +466,8 @@ func main() {
 ### Example
 
 ```dockerfile
+# GOOD: Use golang:1.25 as base image for tests
+# GOOD: implement unittests as first stage
 FROM golang:1.25 AS tests
 
 WORKDIR /app/tests
@@ -472,6 +482,8 @@ COPY *.go ./
 
 CMD ["gotestsum", "--format", "testname"]
 
+# GOOD: Use golang:1.25 as base image for build
+# GOOD: implement build as second stage
 FROM golang:1.25 AS build
 
 WORKDIR /app
@@ -483,6 +495,7 @@ COPY *.go ./
 
 RUN CGO_ENABLED=0 GOOS=linux go build -o api .
 
+# GOOD: Use gcr.io/distroless/static:nonroot as base image for runtime
 FROM gcr.io/distroless/static:nonroot AS runtime
 
 WORKDIR /app
