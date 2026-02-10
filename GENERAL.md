@@ -1,3 +1,18 @@
+---
+Title: General Code Standards
+Description: Cross-language general coding standards and best practices.
+Language: general
+Topics:
+- general
+- KISS
+- YAGNI
+- containerization
+- docker
+- makefiles
+- pre-commit
+- integration-tests
+---
+
 # General Code Standards
 
 # 1. Meta Rules

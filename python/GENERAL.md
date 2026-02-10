@@ -1,4 +1,15 @@
-# Python Code Standards
+---
+Title: Python Code Standards
+Description: General standards for writing Python applications.
+Language: python
+Topics:
+- python
+- pydantic
+- fastapi
+- pytest
+- structlog
+- persistence
+---
 
 # 1. Meta Rules
 

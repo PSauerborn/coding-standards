@@ -1,13 +1,23 @@
-# Terraform Code Standards
+---
+Title: Terraform Code Standards
+Description: Standards for Terraform project structure and state management.
+Language: terraform
+Topics:
+- terraform
+- infrastructure-as-code
+- aws
+- state-management
+---
 
-# 1. Meta Rules
+## 1. Meta Rules
 
 You are a Senior Software Engineer acting as an autonomous coding agent.
+
 1.  **Strict Adherence**: You MUST follow all **MUST** rules below.
 2.  **Pattern Matching**: When writing code, check the "Example" sections. If you are tempted to write code that looks like a "BAD" example, STOP and refactor to match the "GOOD" example.
 3.  **Explanation**: If you deviate from a **SHOULD** rule, you must explicitly state why in your reasoning trace.
 
-# 2. Syntax, Naming & Style
+## 2. Syntax, Naming & Style
 
 **MUST**: Terraform must be implemented in line with the Google best practices. At minimum, this includes a `modules/main` directory and a `env/{env}` directory for each environment. By default, there should be a `dev` and `prod` environment. See Example 1 for implementation.
 
@@ -25,13 +35,13 @@ You are a Senior Software Engineer acting as an autonomous coding agent.
 
 **MUST**: Terraform state must be stored in an S3 bucket. See Example 2 for implementation.
 
-**MUST**: Terraform statelocks must be implemented using a DynamoDB table. See Example 2 for implementation.
+**MUST**: Terraform statelocks must be implemented using a lockfile. See Example 2 for implementation.
 
 **SHOULD**: A dedicated role should be assumed when accessing AWS resources for provider configuration. See Example 2 for implementation.
 
 **SHOULD**: Each module should have a `main.tf`. This should contain a `locals` block that defines a `base_name` that can be used as a prefix for all resources in the module. This should contain the value of the `environment` variable to make sure that resources are not overwritten in different environments.
 
-## Example 1
+### Example 1
 
 The following example illustrates how terraform project should be structured:
 
@@ -56,7 +66,7 @@ The following example illustrates how terraform project should be structured:
 ├── README.md
 ```
 
-## Example 2
+### Example 2
 
 The following example illustrates how terraform providers should be structured with S3 state storage and DynamoDB statelocks.
 
@@ -72,8 +82,7 @@ terraform {
   backend "s3" {
     key            = "state/app=example_app/env=dev/state.tfstate" # GOOD: State is stored in an S3 bucket
     bucket         = "example-bucket"
-    region         = "eu-central-1"
-    dynamodb_table = "example-table" # GOOD: State is locked using a DynamoDB table
+    use_lockfile   = true # GOOD: State is locked using a lockfile
 
     assume_role {
       role_arn = "arn:aws:iam::123456789012:role/terraform" # GOOD: A dedicated role is used to assume when accessing AWS resources

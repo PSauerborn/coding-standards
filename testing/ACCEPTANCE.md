@@ -1,4 +1,13 @@
-# Acceptance Testing Standards
+---
+Title: Acceptance Testing Standards
+Description: Standards for acceptance testing using Gherkin and Cucumber.
+Language: testing
+Topics:
+- testing
+- acceptance-testing
+- gherkin
+- cucumber
+---
 
 # 1. Meta Rules
 
