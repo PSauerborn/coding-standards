@@ -1,0 +1,127 @@
+# Coding Standards Hierarchy
+# Root nodes are language/domain categories. Leaf nodes are specific patterns.
+# Always read the root node for a language before reading any of its leaves.
+
+general:
+  path: GENERAL.md
+  role: root
+  title: General Code Standards
+  description: Cross-language general coding standards and best practices.
+  topics:
+    - general
+    - KISS
+    - YAGNI
+    - containerization
+    - docker
+    - makefiles
+    - pre-commit
+    - integration-tests
+
+golang:
+  path: golang/
+  children:
+    general:
+      path: golang/GENERAL.md
+      role: root
+      title: Golang General Standards
+      description: General standards for writing Go applications.
+      topics:
+        - golang
+        - naming
+        - style
+        - data-models
+        - error-handling
+        - configuration
+        - unittests
+        - logging
+        - persistence
+
+    api:
+      path: golang/API.md
+      role: leaf
+      title: Golang REST API Standards
+      description: Standards for writing REST APIs in Go.
+      topics:
+        - golang
+        - api
+        - rest
+
+    worker:
+      path: golang/WORKER.md
+      role: leaf
+      title: Golang Worker Standards
+      description: Standards for writing background workers in Go.
+      topics:
+        - golang
+        - worker
+        - rabbitmq
+        - message-broker
+
+python:
+  path: python/
+  children:
+    general:
+      path: python/GENERAL.md
+      role: root
+      title: Python Code Standards
+      description: General standards for writing Python applications.
+      topics:
+        - python
+        - pydantic
+        - fastapi
+        - pytest
+        - structlog
+        - persistence
+
+databases:
+  path: databases/
+  children:
+    postgres:
+      path: databases/POSTGRES.md
+      role: leaf
+      title: PostgreSQL Code Standards
+      description: Standards for PostgreSQL data modeling and schema design.
+      topics:
+        - databases
+        - postgresql
+        - data-modeling
+        - schema-design
+
+    dynamodb:
+      path: databases/DYNAMODB.md
+      role: leaf
+      title: DynamoDB Code Standards
+      description: Standards for DynamoDB single-table design and access patterns.
+      topics:
+        - databases
+        - dynamodb
+        - single-table-design
+        - nosql
+
+terraform:
+  path: terraform/
+  children:
+    general:
+      path: terraform/GENERAL.md
+      role: root
+      title: Terraform Code Standards
+      description: Standards for Terraform project structure and state management.
+      topics:
+        - terraform
+        - infrastructure-as-code
+        - aws
+        - state-management
+
+testing:
+  path: testing/
+  children:
+    acceptance:
+      path: testing/ACCEPTANCE.md
+      role: root
+      title: Acceptance Testing Standards
+      description: Standards for acceptance testing using Gherkin and Cucumber.
+      topics:
+        - testing
+        - acceptance-testing
+        - gherkin
+        - cucumber

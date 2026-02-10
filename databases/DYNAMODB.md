@@ -1,4 +1,13 @@
-# DynamoDB Code Standards
+---
+Title: DynamoDB Code Standards
+Description: Standards for DynamoDB single-table design and access patterns.
+Language: databases
+Topics:
+- databases
+- dynamodb
+- single-table-design
+- nosql
+---
 
 # 1. Meta Rules
 

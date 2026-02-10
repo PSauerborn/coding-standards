@@ -1,4 +1,13 @@
-# PostgreSQL Code Standards
+---
+Title: PostgreSQL Code Standards
+Description: Standards for PostgreSQL data modeling and schema design.
+Language: databases
+Topics:
+- databases
+- postgresql
+- data-modeling
+- schema-design
+---
 
 # 1. Meta Rules
 
