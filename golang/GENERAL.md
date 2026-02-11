@@ -1,17 +1,9 @@
 ---
-Title: Golang General Standards
-Description: General standards for writing Go applications.
-Language: golang
-Topics:
+title: Golang General Standards
+description: General standards for writing Go applications.
+scope: '*.go'
+topics:
 - golang
-- naming
-- style
-- data-models
-- error-handling
-- configuration
-- unittests
-- logging
-- persistence
 ---
 
 ## 1. Meta Rules

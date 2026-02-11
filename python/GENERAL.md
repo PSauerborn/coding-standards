@@ -1,8 +1,8 @@
 ---
-Title: Python Code Standards
-Description: General standards for writing Python applications.
-Language: python
-Topics:
+title: Python Code Standards
+description: General standards for writing Python applications.
+scope: '*.py'
+topics:
 - python
 - pydantic
 - fastapi

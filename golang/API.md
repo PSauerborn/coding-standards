@@ -1,11 +1,13 @@
 ---
-Title: Golang REST API Standards
-Description: Standards for writing REST APIs in Go.
-Language: golang
-Topics:
+title: Golang REST API Standards
+description: Standards for writing REST APIs in Go.
+parent: golang/GENERAL.md
+scope: '*.go'
+topics:
 - golang
 - api
 - rest
+- gin-gonic
 ---
 
 ## 1. Meta Rules
