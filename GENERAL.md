@@ -1,11 +1,8 @@
 ---
-Title: General Code Standards
-Description: Cross-language general coding standards and best practices.
-Language: general
-Topics:
-- general
-- KISS
-- YAGNI
+title: General Code Standards
+description: Cross-language general coding standards and best practices.
+scope: '*'
+topics:
 - containerization
 - docker
 - makefiles
@@ -36,4 +33,4 @@ If a user request contradicts a **SHOULD** statement, follow the user request. I
 
 **SHOULD**: `pre-commit` hooks should be used to enforce coding standards and best practices.
 
-**SHOULD**: Projects should have decidcated integration tests.
+**SHOULD**: Projects should have dedicated integration tests.

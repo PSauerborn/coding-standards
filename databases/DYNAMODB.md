@@ -1,9 +1,9 @@
 ---
-Title: DynamoDB Code Standards
-Description: Standards for DynamoDB single-table design and access patterns.
-Language: databases
-Topics:
-- databases
+title: DynamoDB Code Standards
+description: Standards for DynamoDB single-table design and access patterns.
+parent: GENERAL.md
+scope: '*'
+topics:
 - dynamodb
 - single-table-design
 - nosql

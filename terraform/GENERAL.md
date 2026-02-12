@@ -1,12 +1,10 @@
 ---
-Title: Terraform Code Standards
-Description: Standards for Terraform project structure and state management.
-Language: terraform
-Topics:
+title: Terraform Code Standards
+description: Standards for Terraform project structure and state management.
+scope: '*.tf'
+topics:
 - terraform
-- infrastructure-as-code
-- aws
-- state-management
+- iac
 ---
 
 ## 1. Meta Rules

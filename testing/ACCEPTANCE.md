@@ -1,8 +1,9 @@
 ---
-Title: Acceptance Testing Standards
-Description: Standards for acceptance testing using Gherkin and Cucumber.
-Language: testing
-Topics:
+title: Acceptance Testing Standards
+description: Standards for acceptance testing using Gherkin and Cucumber.
+parent: GENERAL.md
+scope: '*'
+topics:
 - testing
 - acceptance-testing
 - gherkin

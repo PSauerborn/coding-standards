@@ -1,12 +1,14 @@
 ---
-Title: Golang Worker Standards
-Description: Standards for writing background workers in Go.
-Language: golang
-Topics:
+title: Golang Worker Standards
+description: Standards for writing background workers in Go.
+scope: '*.go'
+parent: golang/GENERAL.md
+topics:
 - golang
 - worker
 - rabbitmq
 - message-broker
+- amqp
 ---
 
 ## 1. Meta Rules

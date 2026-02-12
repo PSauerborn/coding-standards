@@ -1,8 +1,9 @@
 ---
-Title: PostgreSQL Code Standards
-Description: Standards for PostgreSQL data modeling and schema design.
-Language: databases
-Topics:
+title: PostgreSQL Code Standards
+description: Standards for PostgreSQL data modeling and schema design.
+parent: GENERAL.md
+scope: '*'
+topics:
 - databases
 - postgresql
 - data-modeling
