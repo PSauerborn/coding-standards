@@ -1,12 +1,6 @@
-# CLAUDE.md
+## Coding Standards
 
-## Project
-
-<!-- TODO: Add project description -->
-
-## Code Standards & Style
-
-When working on a task, consult the standards tree in standards-tree.yaml
+When working on a task, consult the standards tree in @~/stdidx/standards-tree.yaml
 to find applicable coding standards.
 
 1. Always start at the root nodes. Read any root node whose scope
@@ -31,19 +25,20 @@ To determine if a node matches your context:
   (e.g. if package.json has "react" as a dependency, the "react"
   topic matches)
 
+## Development
 
-## Commands
+Review coding standards before making any code changes. 
 
-<!-- TODO: Add commands -->
+Development should be done in separate planning and implementation phases. For any task involving more than one file or more than ~20 lines of code, always write an implementation plan to `PLAN.md` first and explicitly wait for approval before proceeding. Once approved, proceed with implementation.
 
-## Architecture
+Implementation plans should contain the following at minimum:
 
-<!-- TODO: Add architecture description -->
+- Files to modify
+- Steps to take
+- Expected changes
 
-## Deployment
+The goal is to create an implementation plan with enough detail that an agent with a smaller thinking capacity can execute the changes effectively.
 
-<!-- TODO: Add deployment description -->
+Updates to existing code should be accompanied with a markdown `diff` block that summarizes the changes being made. This ensures that the changes are easily reviewable. Do not generate the diff block for new files.
 
-## Important Notes
-
-<!-- TODO: Add important notes -->
+Tests should be ran after each change to ensure that the changes are correct.
