@@ -1,6 +1,10 @@
+# CLAUDE.md
+
+Global `CLAUDE.md` file containing instructions on how agents should process tasks. The instructions provided in this file __MUST__ be followed unless explicitly overridden by either a local `CLAUDE.md` file, or a users instruction.
+
 ## Coding Standards
 
-When working on a task, consult the standards tree in @~/stdidx/standards-tree.yaml
+When working on a task, consult the standards tree in `/Users/Pascal/.stdidx/standards-tree.yaml`
 to find applicable coding standards.
 
 1. Always start at the root nodes. Read any root node whose scope

@@ -4,7 +4,6 @@ description: Standards for PostgreSQL data modeling and schema design.
 parent: GENERAL.md
 scope: '*'
 topics:
-- databases
 - postgresql
 - data-modeling
 - schema-design
