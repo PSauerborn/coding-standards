@@ -21,47 +21,47 @@ If a user request contradicts a **SHOULD** statement, follow the user request. I
 
 # 2. Versions and Tooling
 
-**MUST**: Python version 3.13 or higher must be used.
+`[PY-001]` **MUST**: Python version 3.13 or higher must be used.
 
-**MUST**: When in doubt, follow PEP 8.
+`[PY-002]` **MUST**: When in doubt, follow PEP 8.
 
-**SHOULD**: All code should be formatted using `black`.
+`[PY-003]` **SHOULD**: All code should be formatted using `black`.
 
-**SHOULD**: All code should be linted using `flake8`.
+`[PY-004]` **SHOULD**: All code should be linted using `flake8`.
 
 # 3. Syntax, Naming & Style
 
-**MUST**: All file and functions names must be snake_case. This ensures adherence to PEP 8.
+`[PY-005]` **MUST**: All file and functions names must be snake_case. This ensures adherence to PEP 8.
 
-**MUST**: All functions must have a doc string that clearly describes the purpose of the function, its parameters, and its return values. The first word of every doc string should be the name of the function. This ensures that the doc string is easily searchable.
+`[PY-006]` **MUST**: All functions must have a doc string that clearly describes the purpose of the function, its parameters, and its return values. The first word of every doc string should be the name of the function. This ensures that the doc string is easily searchable.
 
-**MUST**: All doc strings must be formatted using Google style.
+`[PY-007]` **MUST**: All doc strings must be formatted using Google style.
 
-**MUST**: Type hints must be provided for all function parameters and return values.
+`[PY-008]` **MUST**: Type hints must be provided for all function parameters and return values.
 
-**MUST**: Use spaces for indentation instead of tabs.
+`[PY-009]` **MUST**: Use spaces for indentation instead of tabs.
 
-**SHOULD**: Prefer a functional approach when possible.
+`[PY-010]` **SHOULD**: Prefer a functional approach when possible.
 
-**SHOULD**: Prefer a single return type per function. This ensures that function complexity is kept minimal.
+`[PY-011]` **SHOULD**: Prefer a single return type per function. This ensures that function complexity is kept minimal.
 
-**SHOULD**: Source code should be placed in a `src` directory. A single `main.py` or `app.py` file should serve as the entry point at the root of the `src` directory.
+`[PY-012]` **SHOULD**: Source code should be placed in a `src` directory. A single `main.py` or `app.py` file should serve as the entry point at the root of the `src` directory.
 
 # 4. Data Models and Validation
 
-**MUST**: Data models must be defined in a dedicated `models.py` file.
+`[PY-013]` **MUST**: Data models must be defined in a dedicated `models.py` file.
 
-**MUST**: Data models must be implenented using `pydantic`.
+`[PY-014]` **MUST**: Data models must be implenented using `pydantic`.
 
-**SHOULD**: Data models should be used throught the application to group related data. This ensures that the code base is more type-safe, and makes the code more readable.
+`[PY-015]` **SHOULD**: Data models should be used throught the application to group related data. This ensures that the code base is more type-safe, and makes the code more readable.
 
-**SHOULD**: An alias should be defined for fields using the `pydantic` `Field` class if applicable. Only add aliases if it is necessary to ensure that the model is compatible with either the API or the database schema.
+`[PY-016]` **SHOULD**: An alias should be defined for fields using the `pydantic` `Field` class if applicable. Only add aliases if it is necessary to ensure that the model is compatible with either the API or the database schema.
 
-**SHOULD**: DTOs and domain models should be defined separately. This ensures that API logic is decoupled from database/storage logic.
+`[PY-017]` **SHOULD**: DTOs and domain models should be defined separately. This ensures that API logic is decoupled from database/storage logic.
 
-**SHOULD**: DTOs should have strict validation rules to ensure that they are valid before being used in business logic. This ensures that external data is validated before being used in business logic.
+`[PY-018]` **SHOULD**: DTOs should have strict validation rules to ensure that they are valid before being used in business logic. This ensures that external data is validated before being used in business logic.
 
-**SHOULD**: Prefer length-constrained strings over just `str` types in datamodels. `None` values should be preferred to empty strings. Empty strings are ambiguous, and it is not clear whether they should be considered as "empty" or "not set".
+`[PY-019]` **SHOULD**: Prefer length-constrained strings over just `str` types in datamodels. `None` values should be preferred to empty strings. Empty strings are ambiguous, and it is not clear whether they should be considered as "empty" or "not set".
 
 ## Example 1
 
@@ -93,15 +93,15 @@ class User(BaseModel):
 
 # 5. Configuration
 
-**MUST**: Configuration must be handled via environment variables. This ensures that configuration is decoupled from code and can be easily changed without modifying code.
+`[PY-020]` **MUST**: Configuration must be handled via environment variables. This ensures that configuration is decoupled from code and can be easily changed without modifying code.
 
-**MUST**: Configuration must be validated at application startup to ensure that all required variables are set. This ensures that the application fails fast if a required variable is not set.
+`[PY-021]` **MUST**: Configuration must be validated at application startup to ensure that all required variables are set. This ensures that the application fails fast if a required variable is not set.
 
-**MUST**: Configuration settings must be defined in a dedicated `config.py` file.
+`[PY-022]` **MUST**: Configuration settings must be defined in a dedicated `config.py` file.
 
-**MUST**: Configuration must be parsed and validated using the `pydantic_settings` package. A `Config` class must be defined in the `config.py` file that implements the `BaseSettings` class.
+`[PY-023]` **MUST**: Configuration must be parsed and validated using the `pydantic_settings` package. A `Config` class must be defined in the `config.py` file that implements the `BaseSettings` class.
 
-**MUST**: A global instance of the `Config` class must be created and made available to the application. This ensures that configuration settings can be easily accessed from anywhere in the application, and that configuration settings are validated at application startup.
+`[PY-024]` **MUST**: A global instance of the `Config` class must be created and made available to the application. This ensures that configuration settings can be easily accessed from anywhere in the application, and that configuration settings are validated at application startup.
 
 ### Example 2
 
@@ -133,33 +133,33 @@ CONFIG = Config()
 
 # 6. Unittests
 
-**MUST**: Unittests must be implemented for all business logic.
+`[PY-025]` **MUST**: Unittests must be implemented for all business logic.
 
-**MUST**: Unittests must be stored in a `tests` directory.
+`[PY-026]` **MUST**: Unittests must be stored in a `tests` directory.
 
-**MUST**: Unittests must be implemented using the `pytest` package.
+`[PY-027]` **MUST**: Unittests must be implemented using the `pytest` package.
 
-**MUST**: Each `.py` file should have a corresponding `_test.py` file that contains unittests.
+`[PY-028]` **MUST**: Each `.py` file should have a corresponding `_test.py` file that contains unittests.
 
-**SHOULD**: The `tests` directory should contain a `conftest.py` file that contains common test fixtures.
+`[PY-029]` **SHOULD**: The `tests` directory should contain a `conftest.py` file that contains common test fixtures.
 
-**SHOULD**: Each function should have a corresponding unittest. Unittests should be named in the format `test_function_name`.
+`[PY-030]` **SHOULD**: Each function should have a corresponding unittest. Unittests should be named in the format `test_function_name`.
 
-**SHOULD**: Unittests should mock database and other service connections rather than using real connections. Connection to live databases should only be used in integration tests. This ensures that unittests are fast and do not depend on external services.
+`[PY-031]` **SHOULD**: Unittests should mock database and other service connections rather than using real connections. Connection to live databases should only be used in integration tests. This ensures that unittests are fast and do not depend on external services.
 
-**SHOULD**: Additional test data used to test business logic (PDF, CSV files etc) should be stored in a separate `tests/data` directory. This ensures that test files do not become cluttered with test data.
+`[PY-032]` **SHOULD**: Additional test data used to test business logic (PDF, CSV files etc) should be stored in a separate `tests/data` directory. This ensures that test files do not become cluttered with test data.
 
 ### AWS Applications
 
-**MUST**: Any applications using AWS resources must use the `moto` package to mock AWS resources.
+`[PY-033]` **MUST**: Any applications using AWS resources must use the `moto` package to mock AWS resources.
 
-**MUST**: Any AWS resources that can be implemented using the `moto` package must be. This ensures that unittests can test interaction with AWS resources as well as possible.
+`[PY-034]` **MUST**: Any AWS resources that can be implemented using the `moto` package must be. This ensures that unittests can test interaction with AWS resources as well as possible.
 
-**MUST**: When using DynamoDB, a `tests/data/table_schema.json` file must be provided that defines the schema of the table.
+`[PY-035]` **MUST**: When using DynamoDB, a `tests/data/table_schema.json` file must be provided that defines the schema of the table.
 
-**MUST**: When using DynamoDB, a `tests/data/initial_db_items.json` file must be provided that defines the initial items in the table.
+`[PY-036]` **MUST**: When using DynamoDB, a `tests/data/initial_db_items.json` file must be provided that defines the initial items in the table.
 
-**MUST**: When using DynamoDB, a `mock_table` `pytest` fixture should be implemented in the `conftest.py` file. This should create the table using the schema defined in `tests/data/table_schema.json` and populate it with the items defined in `tests/data/initial_db_items.json`. See Example 3 for an implementation.
+`[PY-037]` **MUST**: When using DynamoDB, a `mock_table` `pytest` fixture should be implemented in the `conftest.py` file. This should create the table using the schema defined in `tests/data/table_schema.json` and populate it with the items defined in `tests/data/initial_db_items.json`. See Example 3 for an implementation.
 
 ### Example 3
 
@@ -202,11 +202,11 @@ def mock_table():
 
 # 7. Logging
 
-**MUST**: All applications must implement logging. Logging should be present at all levels of the application.
+`[PY-038]` **MUST**: All applications must implement logging. Logging should be present at all levels of the application.
 
-**MUST**: Logging must follow a structured logging format. All log messages should contain at minimum the timestamp, log level, and message.
+`[PY-039]` **MUST**: Logging must follow a structured logging format. All log messages should contain at minimum the timestamp, log level, and message.
 
-**SHOULD**: Logging should be handled via the `structlog` package. See Example 4 for an implementation.
+`[PY-040]` **SHOULD**: Logging should be handled via the `structlog` package. See Example 4 for an implementation.
 
 ### Example 4
 
@@ -278,17 +278,17 @@ def main():
 
 # 8. Persistence Layers
 
-**MUST**: Persistence layers must have their own dedicated file that contains all storage logic.
+`[PY-041]` **MUST**: Persistence layers must have their own dedicated file that contains all storage logic.
 
-**SHOULD**: Prefer transactional operations that execute multiple database operations as a single unit of work. This ensures that database operations are atomic and consistent, and minimizes the risk of incomplete or inconsistent data.
+`[PY-042]` **SHOULD**: Prefer transactional operations that execute multiple database operations as a single unit of work. This ensures that database operations are atomic and consistent, and minimizes the risk of incomplete or inconsistent data.
 
-**SHOULD**: Prefer a functional approach when implementing persistence layers.
+`[PY-043]` **SHOULD**: Prefer a functional approach when implementing persistence layers.
 
-**SHOULD**: Persistence layers should consist of a series of functions that take the database client as the first argument, then execute any required database operations.
+`[PY-044]` **SHOULD**: Persistence layers should consist of a series of functions that take the database client as the first argument, then execute any required database operations.
 
-**SHOULD**: Persistence layers should return domain models where multiple input and return values are required. See `Example 5` for an illustration.
+`[PY-045]` **SHOULD**: Persistence layers should return domain models where multiple input and return values are required. See `Example 5` for an illustration.
 
-**SHOULD**: PostgreSQL should be used by default if not otherwise specified.
+`[PY-046]` **SHOULD**: PostgreSQL should be used by default if not otherwise specified.
 
 ### Example 5
 
@@ -459,17 +459,17 @@ def get_user(user_id: int):
 
 ### PostgreSQL
 
-**MUST**: PostgreSQL persistence layers must be implemented using the `psycopg` package. This enforces consistency across all applications.
+`[PY-047]` **MUST**: PostgreSQL persistence layers must be implemented using the `psycopg` package. This enforces consistency across all applications.
 
-**SHOULD**: Autocommit should be disabled by default in favor of transactions. This ensures that database operations are atomic and consistent and minimizes the risk of incomplete or inconsistent data.
+`[PY-048]` **SHOULD**: Autocommit should be disabled by default in favor of transactions. This ensures that database operations are atomic and consistent and minimizes the risk of incomplete or inconsistent data.
 
-**SHOULD**: `psycopg` connections should use a `dict_row` cursor factory. This ensures that database operations return a dictionary of column names and values that can be fed directly into `pydantic` models. See `Example 3` for an illustration.
+`[PY-049]` **SHOULD**: `psycopg` connections should use a `dict_row` cursor factory. This ensures that database operations return a dictionary of column names and values that can be fed directly into `pydantic` models. See `Example 3` for an illustration.
 
 ### DynamoDB
 
-**MUST**: DynamoDB persistence layers must be implemented using the `boto3` package. This enforces consistency across all applications.
+`[PY-050]` **MUST**: DynamoDB persistence layers must be implemented using the `boto3` package. This enforces consistency across all applications.
 
-**SHOULD**: Prefer using `boto3` table resources instead of clients. This ensures that responses from DynamoDB can be passed directly into `pydantic` models without requiring parsing of DynamoDB types. If a `boto3` client is required (such as when using `BatchGetItem`), extract the client from the table object using `table.meta.client`.
+`[PY-051]` **SHOULD**: Prefer using `boto3` table resources instead of clients. This ensures that responses from DynamoDB can be passed directly into `pydantic` models without requiring parsing of DynamoDB types. If a `boto3` client is required (such as when using `BatchGetItem`), extract the client from the table object using `table.meta.client`.
 
 ### Example 6
 
@@ -595,39 +595,39 @@ def get_users() -> list[dict]:
 
 # 9. REST APIs
 
-**MUST**: REST APIs must accept and return JSON data. Exceptions can be made for file uploads and responses where binary data is required. 
+`[PY-052]` **MUST**: REST APIs must accept and return JSON data. Exceptions can be made for file uploads and responses where binary data is required. 
 
-**MUST**: REST APIs must structure responses in a consistent manner. 
+`[PY-053]` **MUST**: REST APIs must structure responses in a consistent manner. 
 
-**MUST**: REST APIs must have a version prefix in the URL. This ensures that APIs can be versioned and that old APIs can be deprecated.
+`[PY-054]` **MUST**: REST APIs must have a version prefix in the URL. This ensures that APIs can be versioned and that old APIs can be deprecated.
 
-**MUST**: Error responses must contain an `error` field, and an optional `details` field. The `error` field must contain a generic error message i.e. "Internal Server Error", "Bad Request" etc. The `details` field should contain additional details about the error where applicable. 
+`[PY-055]` **MUST**: Error responses must contain an `error` field, and an optional `details` field. The `error` field must contain a generic error message i.e. "Internal Server Error", "Bad Request" etc. The `details` field should contain additional details about the error where applicable. 
 
-**MUST**: Success responses must return data in a `data` field.
+`[PY-056]` **MUST**: Success responses must return data in a `data` field.
 
-**MUST**: All REST APIs must have an associated `openapi.yaml` file that defines the API contract. This ensures that the API is well-documented.
+`[PY-057]` **MUST**: All REST APIs must have an associated `openapi.yaml` file that defines the API contract. This ensures that the API is well-documented.
 
-**SHOULD**: REST API endpoints should follow a dependency injection pattern. Prefer initialization of dependencies within the endpoint handler rather than within business logic. See `Example 7` for an illustration.
+`[PY-058]` **SHOULD**: REST API endpoints should follow a dependency injection pattern. Prefer initialization of dependencies within the endpoint handler rather than within business logic. See `Example 7` for an illustration.
 
-**SHOULD**: REST APIs should be implemented using the `FastAPI` package.
+`[PY-059]` **SHOULD**: REST APIs should be implemented using the `FastAPI` package.
 
-**SHOULD**: REST APIs should be run using `uvicorn`.
+`[PY-060]` **SHOULD**: REST APIs should be run using `uvicorn`.
 
-**SHOULD**: Registration of endpoints should be kept minimal and only contain the basic logic for routing, creation of depedencies such as database clients, and error handling. All business logic should be implemented outside of the endpoint definition.
+`[PY-061]` **SHOULD**: Registration of endpoints should be kept minimal and only contain the basic logic for routing, creation of depedencies such as database clients, and error handling. All business logic should be implemented outside of the endpoint definition.
 
-**SHOULD**: Database clients and other dependencies should be initialized within the endpoint handler, when the endpoint is invoked. Prefer a new database/client/service connection for each request as this avoids long-lived connections and reduces the risk of connection leaks. See `Example 7` for an illustration.
+`[PY-062]` **SHOULD**: Database clients and other dependencies should be initialized within the endpoint handler, when the endpoint is invoked. Prefer a new database/client/service connection for each request as this avoids long-lived connections and reduces the risk of connection leaks. See `Example 7` for an illustration.
 
-**SHOULD**: DTO datamodels should be defined separately from domain models using the `pydantic` package, and should include validation for all fields.
+`[PY-063]` **SHOULD**: DTO datamodels should be defined separately from domain models using the `pydantic` package, and should include validation for all fields.
 
-**SHOULD**: Each endpoint should have a `endpoint_name` function. It should return a `JSONResponse` instance that contains the HTTP response code, and body. See `Example 7` for an illustration.
+`[PY-064]` **SHOULD**: Each endpoint should have a `endpoint_name` function. It should return a `JSONResponse` instance that contains the HTTP response code, and body. See `Example 7` for an illustration.
 
-**SHOULD**: `Depends` should be used to inject dependencies into endpoint handlers. This ensures that dependencies are initialized only once per request.
+`[PY-065]` **SHOULD**: `Depends` should be used to inject dependencies into endpoint handlers. This ensures that dependencies are initialized only once per request.
 
-**SHOULD**: CORS should be enabled for REST APIs by default via the `fastapi.middleware.cors` package.
+`[PY-066]` **SHOULD**: CORS should be enabled for REST APIs by default via the `fastapi.middleware.cors` package.
 
-**SHOULD**: Each endpoint should have its own unittest.
+`[PY-067]` **SHOULD**: Each endpoint should have its own unittest.
 
-**SHOULD**: When returning `pydantic` models, use the `model_dump` method with the `mode="json"` argument to ensure that the model is serialized to a JSON object.
+`[PY-068]` **SHOULD**: When returning `pydantic` models, use the `model_dump` method with the `mode="json"` argument to ensure that the model is serialized to a JSON object.
 
 ### Example 7
 
@@ -850,17 +850,17 @@ if __name__ == "__main__":
 
 # 10. Dockerfiles
 
-**MUST**: Dockerfiles must be provided for all applications. 
+`[PY-069]` **MUST**: Dockerfiles must be provided for all applications. 
 
-**MUST**: Dockerfiles must be implemented as multi-stage builds. 
+`[PY-070]` **MUST**: Dockerfiles must be implemented as multi-stage builds. 
 
-**MUST**: Images must be built for AMD linux architecture. Use the `--platform linux/amd64` flag to specify the architecture when building the image. Additionally, the `--provenance=false` flag must be used to disable provenance.
+`[PY-071]` **MUST**: Images must be built for AMD linux architecture. Use the `--platform linux/amd64` flag to specify the architecture when building the image. Additionally, the `--provenance=false` flag must be used to disable provenance.
 
-**MUST**: Non-essential files should be excluded from the final image. This ensures that the final image is as small as possible.
+`[PY-072]` **MUST**: Non-essential files should be excluded from the final image. This ensures that the final image is as small as possible.
 
-**SHOULD**: Dockerfiles should consist of two stages. The first stage should run unittests, the second stage should build the application and run the application. The runtime image should be as small as possible. Prefer a smaller image over a larger image. See `Example 7` for an illustration.
+`[PY-073]` **SHOULD**: Dockerfiles should consist of two stages. The first stage should run unittests, the second stage should build the application and run the application. The runtime image should be as small as possible. Prefer a smaller image over a larger image. See `Example 7` for an illustration.
 
-**SHOULD**: The runtime image should be based on a slim image. Prefer debian based images over alpine based images. This avoids issues with missing C libraries and bindings when installing dependencies. See `Example 7` for an illustration.
+`[PY-074]` **SHOULD**: The runtime image should be based on a slim image. Prefer debian based images over alpine based images. This avoids issues with missing C libraries and bindings when installing dependencies. See `Example 7` for an illustration.
 
 ### Example 7
 
