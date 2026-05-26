@@ -22,33 +22,33 @@ If a user request contradicts a **SHOULD** statement, follow the user request. I
 
 ## 2. REST API Guidelines
 
-**MUST**: REST APIs must accept and return JSON data. Exceptions can be made for file uploads and responses where binary data is required.
+`[GO-API-001]` **MUST**: REST APIs must accept and return JSON data. Exceptions can be made for file uploads and responses where binary data is required.
 
-**MUST**: REST APIs must structure responses in a consistent manner.
+`[GO-API-002]` **MUST**: REST APIs must structure responses in a consistent manner.
 
-**MUST**: REST APIs must have a version prefix in the URL. This ensures that APIs can be versioned and that old APIs can be deprecated.
+`[GO-API-003]` **MUST**: REST APIs must have a version prefix in the URL. This ensures that APIs can be versioned and that old APIs can be deprecated.
 
-**MUST**: Error responses must contain an `error` field, and an optional `details` field. The `error` field must contain a generic error message i.e. "Internal Server Error", "Bad Request" etc. The `details` field should contain additional details about the error where applicable.
+`[GO-API-004]` **MUST**: Error responses must contain an `error` field, and an optional `details` field. The `error` field must contain a generic error message i.e. "Internal Server Error", "Bad Request" etc. The `details` field should contain additional details about the error where applicable.
 
-**MUST**: REST APIs must have a `/health` endpoint that checks the health of the API. The health endpoint should check the health of all dependencies and return a `200 OK` response if all dependencies are healthy.
+`[GO-API-005]` **MUST**: REST APIs must have a `/health` endpoint that checks the health of the API. The health endpoint should check the health of all dependencies and return a `200 OK` response if all dependencies are healthy.
 
-**MUST**: REST APIs must have a `/version` endpoint that returns the version of the API.
+`[GO-API-006]` **MUST**: REST APIs must have a `/version` endpoint that returns the version of the API.
 
-**SHOULD**: REST API endpoints should follow a dependency injection pattern. Prefer initialization of dependencies within the endpoint handler rather than within business logic. See `Example 1` for an illustration.
+`[GO-API-007]` **SHOULD**: REST API endpoints should follow a dependency injection pattern. Prefer initialization of dependencies within the endpoint handler rather than within business logic. See `Example 1` for an illustration.
 
-**SHOULD**: REST APIs should be implemented using the `github.com/gin-gonic/gin` package.
+`[GO-API-008]` **SHOULD**: REST APIs should be implemented using the `github.com/gin-gonic/gin` package.
 
-**SHOULD**: REST APIs should be implemented using a controller pattern. The controller should contain singletons for database clients, service clients, etc. See `Example 1` for an illustration.
+`[GO-API-009]` **SHOULD**: REST APIs should be implemented using a controller pattern. The controller should contain singletons for database clients, service clients, etc. See `Example 1` for an illustration.
 
-**SHOULD**: Packages defining REST APIs should have a `NewRouter` constructor that returns a new instance of the router with all plugins and endpoints registered. See `Example 1` for an illustration.
+`[GO-API-010]` **SHOULD**: Packages defining REST APIs should have a `NewRouter` constructor that returns a new instance of the router with all plugins and endpoints registered. See `Example 1` for an illustration.
 
-**SHOULD**: Registration of endpoints should be kept minimal and only contain the basic logic for routing, creation of dependencies such as database clients, and error handling. All business logic should be implemented in the controller. See `Example 1` for an illustration.
+`[GO-API-011]` **SHOULD**: Registration of endpoints should be kept minimal and only contain the basic logic for routing, creation of dependencies such as database clients, and error handling. All business logic should be implemented in the controller. See `Example 1` for an illustration.
 
-**SHOULD**: The controller should have a `EndpointNameHandler` function for each defined endpoint that takes the `*gin.Context` as its only argument. It should return a `JSONResponse` struct that contains the HTTP response code, and a body. See `Example 1` for an illustration.
+`[GO-API-012]` **SHOULD**: The controller should have a `EndpointNameHandler` function for each defined endpoint that takes the `*gin.Context` as its only argument. It should return a `JSONResponse` struct that contains the HTTP response code, and a body. See `Example 1` for an illustration.
 
-**SHOULD**: CORS should be enabled for REST APIs by default via the `github.com/gin-contrib/cors` package. See `Example 1` for an illustration.
+`[GO-API-013]` **SHOULD**: CORS should be enabled for REST APIs by default via the `github.com/gin-contrib/cors` package. See `Example 1` for an illustration.
 
-**SHOULD**: Each endpoint should have its own unittest.
+`[GO-API-014]` **SHOULD**: Each endpoint should have its own unittest.
 
 ### Example 1
 
@@ -334,21 +334,21 @@ func UpdateResource(c *gin.Context, id string) error {
 
 ## 3. Documentation
 
-**MUST**: All REST APIs must have an associated `openapi.yaml` file that defines the API contract. All endpoints should be documented in the `openapi.yaml` file. This ensures that the API is well-documented.
+`[GO-API-015]` **MUST**: All REST APIs must have an associated `openapi.yaml` file that defines the API contract. All endpoints should be documented in the `openapi.yaml` file. This ensures that the API is well-documented.
 
 ## 4. Dockerfiles
 
-**MUST**: Dockerfiles must be provided for all applications.
+`[GO-API-016]` **MUST**: Dockerfiles must be provided for all applications.
 
-**MUST**: Dockerfiles must be implemented as multi-stage builds.
+`[GO-API-017]` **MUST**: Dockerfiles must be implemented as multi-stage builds.
 
-**MUST**: Images must be built for AMD linux architecture. Use the `--platform linux/amd64` flag to specify the architecture when building the image. Additionally, the `--provenance=false` flag must be used to disable provenance.
+`[GO-API-018]` **MUST**: Images must be built for AMD linux architecture. Use the `--platform linux/amd64` flag to specify the architecture when building the image. Additionally, the `--provenance=false` flag must be used to disable provenance.
 
-**MUST**: Non-essential files should be excluded from the final image.
+`[GO-API-019]` **MUST**: Non-essential files should be excluded from the final image.
 
-**SHOULD**: Dockerfiles should consist of three stages. The first stage should run unittests, the second stage should build the application, and the third stage should run the application.
+`[GO-API-020]` **SHOULD**: Dockerfiles should consist of three stages. The first stage should run unittests, the second stage should build the application, and the third stage should run the application.
 
-**SHOULD**: Any stages that do not run the application should be based on the full golang image. Stages that run the application should be based on the `gcr.io/distroless/static:nonroot` image.
+`[GO-API-021]` **SHOULD**: Any stages that do not run the application should be based on the full golang image. Stages that run the application should be based on the `gcr.io/distroless/static:nonroot` image.
 
 ### Example 3
 

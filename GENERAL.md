@@ -29,14 +29,14 @@ If a user request contradicts a **SHOULD** statement, follow the user request. I
 
 # 2. General Guidelines
 
-**SHOULD**: All design and implementation choices should follow KISS (Keep It Simple, Stupid) and YAGNI (You Ain't Gonna Need It) principles.
+`[GEN-001]` **SHOULD**: All design and implementation choices should follow KISS (Keep It Simple, Stupid) and YAGNI (You Ain't Gonna Need It) principles.
 
-**SHOULD**: Complexity intruduces significant cost, engineering debt and risk. Prefer solutions and implementations that minimize entropy.
+`[GEN-002]` **SHOULD**: Complexity intruduces significant cost, engineering debt and risk. Prefer solutions and implementations that minimize entropy.
 
-**SHOULD**: Code should be built, tested and ran in a containerized environment, preferably using Docker. This ensures consistency and reproducibility.
+`[GEN-003]` **SHOULD**: Code should be built, tested and ran in a containerized environment, preferably using Docker. This ensures consistency and reproducibility.
 
-**SHOULD**: Makefiles should be used to define build and test targets.
+`[GEN-004]` **SHOULD**: Makefiles should be used to define build and test targets.
 
-**SHOULD**: `pre-commit` hooks should be used to enforce coding standards and best practices.
+`[GEN-005]` **SHOULD**: `pre-commit` hooks should be used to enforce coding standards and best practices.
 
-**SHOULD**: Projects should have dedicated integration tests.
+`[GEN-006]` **SHOULD**: Projects should have dedicated integration tests.

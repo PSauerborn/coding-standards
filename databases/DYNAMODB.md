@@ -20,25 +20,25 @@ If a user request contradicts a **SHOULD** statement, follow the user request. I
 
 # 2. Data Modeling
 
-**MUST**: All DynamoDB tables must have `PK` and `SK` as partition and sort key respectively.
+`[DDB-001]` **MUST**: All DynamoDB tables must have `PK` and `SK` as partition and sort key respectively.
 
-**MUST**: All global secondary indexes must have `GSI{N}PK` and `GSI{N}SK` as partition and sort key respectively, where `{N}` is an integer refering to the index number.
+`[DDB-002]` **MUST**: All global secondary indexes must have `GSI{N}PK` and `GSI{N}SK` as partition and sort key respectively, where `{N}` is an integer refering to the index number.
 
-**MUST**: All data stored in a key field must also be stored as a separate attribute in the object. For instance, if an item has partition key `USER#{userId}` then the item must also have a `userId` attribute. This ensures keys can be reconstructed from the non-key item attributes.
+`[DDB-003]` **MUST**: All data stored in a key field must also be stored as a separate attribute in the object. For instance, if an item has partition key `USER#{userId}` then the item must also have a `userId` attribute. This ensures keys can be reconstructed from the non-key item attributes.
 
-**MUST**: All DynamoDB tables must implement a single-table design pattern. All keys must follow the structure `TYPE#{id}` where `TYPE` is the type of the item and `id` is the unique identifier of the item. Keys can have multiple parts, for instance `USER#{userId}` or `USER#{userId}#EMAIL#{email}`. This ensures that it is clear what type of entity is stored in the item from the structure of the key.
+`[DDB-004]` **MUST**: All DynamoDB tables must implement a single-table design pattern. All keys must follow the structure `TYPE#{id}` where `TYPE` is the type of the item and `id` is the unique identifier of the item. Keys can have multiple parts, for instance `USER#{userId}` or `USER#{userId}#EMAIL#{email}`. This ensures that it is clear what type of entity is stored in the item from the structure of the key.
 
-**MUST**: Table scan operations are slow and must be avoided. Use global secondary indexes instead.
+`[DDB-005]` **MUST**: Table scan operations are slow and must be avoided. Use global secondary indexes instead.
 
-**MUST**: Persistence layers must use UTC time when storing timestamps.
+`[DDB-006]` **MUST**: Persistence layers must use UTC time when storing timestamps.
 
-**SHOULD**: All DynamoDBN items should have a `createdAt` and `updatedAt` attribute to track when the item was created and last updated.
+`[DDB-007]` **SHOULD**: All DynamoDBN items should have a `createdAt` and `updatedAt` attribute to track when the item was created and last updated.
 
-**SHOULD**: The number of items for any given global secondary index should be kept relatively small to avoid large partitions. Prefer duplicating data over several items with different keys/access patterns.
+`[DDB-008]` **SHOULD**: The number of items for any given global secondary index should be kept relatively small to avoid large partitions. Prefer duplicating data over several items with different keys/access patterns.
 
-**MUST**: Persistence layers must use transactions where possible to ensure data consistency. This helpls to prevent data loss and partial updates.
+`[DDB-009]` **MUST**: Persistence layers must use transactions where possible to ensure data consistency. This helpls to prevent data loss and partial updates.
 
-**SHOULD**: Persistence layers should use `BatchGetItem` and `BatchWriteItem` operations to reduce the number of individual requests to DynamoDB.
+`[DDB-010]` **SHOULD**: Persistence layers should use `BatchGetItem` and `BatchWriteItem` operations to reduce the number of individual requests to DynamoDB.
 
 ## Example 1
 

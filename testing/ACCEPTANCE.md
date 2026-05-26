@@ -21,21 +21,21 @@ If a user request contradicts a **SHOULD** statement, follow the user request. I
 
 ## General
 
-**MUST**: Acceptance tests must be implemented using Gherkin `Given, When, Then` syntax.
+`[ACPT-001]` **MUST**: Acceptance tests must be implemented using Gherkin `Given, When, Then` syntax.
 
-**MUST**: Acceptance tests must be implemented using the Cucumber framework.
+`[ACPT-002]` **MUST**: Acceptance tests must be implemented using the Cucumber framework.
 
-**SHOULD**: Acceptance tests should be placed in the `acceptance` directory.
+`[ACPT-003]` **SHOULD**: Acceptance tests should be placed in the `acceptance` directory.
 
-**SHOULD**: Acceptance tests should be ran against live DEV environments.
+`[ACPT-004]` **SHOULD**: Acceptance tests should be ran against live DEV environments.
 
-**Guidline**: `.feature` files should be placed in the `acceptance/features` directory.
+`[ACPT-005]` **Guidline**: `.feature` files should be placed in the `acceptance/features` directory.
 
-**Guidline**: Step definitions should be placed in the root `acceptance` directory.
+`[ACPT-006]` **Guidline**: Step definitions should be placed in the root `acceptance` directory.
 
-**Guidline**: Acceptenance tests should be implemented in the same language as the application. Golang projects should use the `github.com/cucumber/godog` package. Python projects should use the `behave` package.
+`[ACPT-007]` **Guidline**: Acceptenance tests should be implemented in the same language as the application. Golang projects should use the `github.com/cucumber/godog` package. Python projects should use the `behave` package.
 
-**SHOULD**: A dockerfile should be provided to run the acceptance tests.
+`[ACPT-008]` **SHOULD**: A dockerfile should be provided to run the acceptance tests.
 
 
 ### Example 1

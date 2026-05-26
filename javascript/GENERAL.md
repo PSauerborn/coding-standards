@@ -22,24 +22,24 @@ If a user request contradicts a **SHOULD** statement, follow the user request. I
 
 # 2. Versions and Tooling
 
-**MUST**: Node version 20 or higher must be used.
+`[JS-001]` **MUST**: Node version 20 or higher must be used.
 
-**MUST**: Applications must be written using Vue3.
+`[JS-002]` **MUST**: Applications must be written using Vue3.
 
-**MUST**: Applications must use the Quasar component framework.
+`[JS-003]` **MUST**: Applications must use the Quasar component framework.
 
-**SHOULD**: Applications should be written using Javascript.
+`[JS-004]` **SHOULD**: Applications should be written using Javascript.
 
-**SHOULD**: All code should be formatted using `prettier`.
+`[JS-005]` **SHOULD**: All code should be formatted using `prettier`.
 
-**SHOULD**: All code should be linted using `eslint`.
+`[JS-006]` **SHOULD**: All code should be linted using `eslint`.
 
 # 3. Syntax, Naming & Style
 
-**MUST**: All file and functions names must be PascalCase.
+`[JS-007]` **MUST**: All file and functions names must be PascalCase.
 
-**MUST**: All functions must have a JSDoc comment that clearly describes the purpose of the function, its parameters, and its return values. The first word of every JSDoc comment should be the name of the function. This ensures that the JSDoc comment is easily searchable.
+`[JS-008]` **MUST**: All functions must have a JSDoc comment that clearly describes the purpose of the function, its parameters, and its return values. The first word of every JSDoc comment should be the name of the function. This ensures that the JSDoc comment is easily searchable.
 
-**MUST**: Code must follow DRY (Don't Repeat Yourself) principles. This ensures that code is maintainable and easy to understand.
+`[JS-009]` **MUST**: Code must follow DRY (Don't Repeat Yourself) principles. This ensures that code is maintainable and easy to understand.
 
-**MUST**: Code must implement components where possible, inline with DRY principles. This minimizes the amount of code that needs to be written and maintained.
+`[JS-010]` **MUST**: Code must implement components where possible, inline with DRY principles. This minimizes the amount of code that needs to be written and maintained.
