@@ -8,7 +8,6 @@ topics:
 - fastapi
 - pytest
 - structlog
-- persistence
 ---
 
 # 1. Meta Rules

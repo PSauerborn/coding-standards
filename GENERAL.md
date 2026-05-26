@@ -3,11 +3,17 @@ title: General Code Standards
 description: Cross-language general coding standards and best practices.
 scope: '*'
 topics:
-- containerization
 - docker
 - makefiles
 - pre-commit
 - integration-tests
+aliases:
+  go: golang
+  js: javascript
+  ts: typescript
+  py: python
+  postgres: postgresql
+  pg: postgresql
 ---
 
 # General Code Standards

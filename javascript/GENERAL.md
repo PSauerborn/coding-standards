@@ -1,7 +1,10 @@
 ---
 title: Javascript Code Standards
 description: General standards for writing Javascript applications.
-scope: '*.js, *.ts, *.vue'
+scope:
+- '*.js'
+- '*.ts'
+- '*.vue'
 topics:
 - javascript
 - node
