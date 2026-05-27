@@ -1,12 +1,15 @@
 ---
 title: Terraform Code Standards
 description: Standards for Terraform project structure and state management.
-scope: '*.tf'
+scope:
+- '*.tf'
 parent: GENERAL.md
 topics:
 - terraform
 - iac
 ---
+
+# Terraform Code Standards
 
 ## 1. Versions and Tooling
 

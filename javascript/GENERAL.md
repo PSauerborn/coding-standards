@@ -12,7 +12,9 @@ topics:
 - vue
 ---
 
-# 1. Versions and Tooling
+# Javascript Code Standards
+
+## 1. Versions and Tooling
 
 `[JS-001]` **MUST**: Node version 20 or higher must be used.
 
@@ -26,7 +28,7 @@ topics:
 
 `[JS-006]` **SHOULD**: All code should be linted using `eslint`.
 
-# 2. Syntax, Naming & Style
+## 2. Syntax, Naming & Style
 
 `[JS-007]` **MUST**: All file and functions names must be PascalCase.
 

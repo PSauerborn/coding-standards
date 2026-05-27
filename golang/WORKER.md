@@ -1,7 +1,8 @@
 ---
 title: Golang Worker Standards
 description: Standards for writing background workers in Go.
-scope: '*.go'
+scope:
+- '*.go'
 parent: golang/GENERAL.md
 topics:
 - golang
@@ -10,6 +11,8 @@ topics:
 - message-broker
 - amqp
 ---
+
+# Golang Worker Standards
 
 ## 1. Worker Guidelines
 

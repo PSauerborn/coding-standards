@@ -2,14 +2,17 @@
 title: DynamoDB Code Standards
 description: Standards for DynamoDB single-table design and access patterns.
 parent: GENERAL.md
-scope: '*'
+scope:
+- '*'
 topics:
 - dynamodb
 - single-table-design
 - nosql
 ---
 
-# 1. Data Modeling
+# DynamoDB Code Standards
+
+## 1. Data Modeling
 
 `[DDB-001]` **MUST**: All DynamoDB tables must have `PK` and `SK` as partition and sort key respectively.
 
@@ -31,7 +34,7 @@ topics:
 
 `[DDB-010]` **SHOULD**: Persistence layers should use `BatchGetItem` and `BatchWriteItem` operations to reduce the number of individual requests to DynamoDB.
 
-## Example 1
+### Example 1
 
 The following example illustrates how DynamoDB items should be structured and keyed:
 

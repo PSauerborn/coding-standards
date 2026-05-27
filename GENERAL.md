@@ -1,7 +1,8 @@
 ---
 title: General Code Standards
 description: Cross-language general coding standards and best practices.
-scope: '*'
+scope:
+- '*'
 topics:
 - docker
 - makefiles
@@ -18,7 +19,7 @@ aliases:
 
 # General Code Standards
 
-# 1. Meta Rules
+## 1. Meta Rules
 
 Each rule is tagged **MUST** or **SHOULD**:
 
@@ -33,7 +34,7 @@ Rules often include a short rationale. When a case isn't explicitly covered, app
 - User request vs. **SHOULD** : follow the user.
 - User request vs. **MUST** : stop and confirm before proceeding.
 
-# 2. General Guidelines
+## 2. General Guidelines
 
 `[GEN-001]` **MUST**: When making design and implementation choices, follow KISS (Keep It Simple, Stupid) and YAGNI (You Ain't Gonna Need It) principles. Submit any architectural decisions for review before implementing them to ensure that high-level decisions are made by users.
 

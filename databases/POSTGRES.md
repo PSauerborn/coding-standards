@@ -2,14 +2,17 @@
 title: PostgreSQL Code Standards
 description: Standards for PostgreSQL data modeling and schema design.
 parent: GENERAL.md
-scope: '*'
+scope:
+- '*'
 topics:
 - postgresql
 - data-modeling
 - schema-design
 ---
 
-# 1. Data Modeling
+# PostgreSQL Code Standards
+
+## 1. Data Modeling
 
 `[PG-001]` **MUST**: PostgreSQL tables must exist under a dedicated schema. This ensures that the database can have multiple, segregated schemas for different components of the sample application.
 

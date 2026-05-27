@@ -1,7 +1,8 @@
 ---
 title: Python Code Standards
 description: General standards for writing Python applications.
-scope: '*.py'
+scope:
+- '*.py'
 parent: GENERAL.md
 topics:
 - python
@@ -11,7 +12,9 @@ topics:
 - structlog
 ---
 
-# 1. Versions and Tooling
+# Python Code Standards
+
+## 1. Versions and Tooling
 
 `[PY-001]` **MUST**: Python version 3.13 or higher must be used.
 
@@ -21,7 +24,7 @@ topics:
 
 `[PY-004]` **SHOULD**: All code should be linted using `flake8`.
 
-# 2. Syntax, Naming & Style
+## 2. Syntax, Naming & Style
 
 `[PY-005]` **MUST**: All file and functions names must be snake_case. This ensures adherence to PEP 8.
 
@@ -39,7 +42,7 @@ topics:
 
 `[PY-012]` **SHOULD**: Source code should be placed in a `src` directory. A single `main.py` or `app.py` file should serve as the entry point at the root of the `src` directory.
 
-# 3. Data Models and Validation
+## 3. Data Models and Validation
 
 `[PY-013]` **MUST**: Data models must be defined in a dedicated `models.py` file.
 
@@ -55,7 +58,7 @@ topics:
 
 `[PY-019]` **SHOULD**: Prefer length-constrained strings over just `str` types in datamodels. `None` values should be preferred to empty strings. Empty strings are ambiguous, and it is not clear whether they should be considered as "empty" or "not set".
 
-## Example 1
+### Example 1
 
 The following illustrates a data model that follows the above recommendations.
 
@@ -83,7 +86,7 @@ class User(BaseModel):
 
 ```
 
-# 4. Configuration
+## 4. Configuration
 
 `[PY-020]` **MUST**: Configuration must be handled via environment variables. This ensures that configuration is decoupled from code and can be easily changed without modifying code.
 
@@ -123,7 +126,7 @@ CONFIG = Config()
 
 ```
 
-# 5. Unittests
+## 5. Unittests
 
 `[PY-025]` **MUST**: Unittests must be implemented for all business logic.
 
@@ -192,7 +195,7 @@ def mock_table():
 
 ```
 
-# 6. Logging
+## 6. Logging
 
 `[PY-038]` **MUST**: All applications must implement logging. Logging should be present at all levels of the application.
 
@@ -268,7 +271,7 @@ def main():
 
 ```
 
-# 7. Persistence Layers
+## 7. Persistence Layers
 
 `[PY-041]` **MUST**: Persistence layers must have their own dedicated file that contains all storage logic.
 
@@ -585,7 +588,7 @@ def get_users() -> list[dict]:
     return response["Items"]
 ```
 
-# 8. REST APIs
+## 8. REST APIs
 
 `[PY-052]` **MUST**: REST APIs must accept and return JSON data. Exceptions can be made for file uploads and responses where binary data is required. 
 
@@ -840,7 +843,7 @@ if __name__ == "__main__":
 ```
 
 
-# 9. Dockerfiles
+## 9. Dockerfiles
 
 `[PY-069]` **MUST**: Dockerfiles must be provided for all applications. 
 

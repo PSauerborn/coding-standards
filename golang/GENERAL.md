@@ -1,11 +1,14 @@
 ---
 title: Golang General Standards
 description: General standards for writing Go applications.
-scope: '*.go'
+scope:
+- '*.go'
 parent: GENERAL.md
 topics:
 - golang
 ---
+
+# Golang General Standards
 
 ## 1. Versions and Tooling
 
