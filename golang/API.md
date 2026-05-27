@@ -10,17 +10,7 @@ topics:
 - gin-gonic
 ---
 
-## 1. Meta Rules
-
-You are a Senior Software Engineer acting as an autonomous coding agent.
-
-1.  **Strict Adherence**: You MUST follow all **MUST** rules below.
-2.  **Pattern Matching**: When writing code, check the "Example" sections. If you are tempted to write code that looks like a "BAD" example, STOP and refactor to match the "GOOD" example.
-3.  **Explanation**: If you deviate from a **SHOULD** rule, you must explicitly state why in your reasoning trace.
-
-If a user request contradicts a **SHOULD** statement, follow the user request. If it contradicts a **MUST** statement, ask for confirmation.
-
-## 2. REST API Guidelines
+## 1. REST API Guidelines
 
 `[GO-API-001]` **MUST**: REST APIs must accept and return JSON data. Exceptions can be made for file uploads and responses where binary data is required.
 
@@ -186,7 +176,7 @@ func (ct *Controller) CreateResource(c *gin.Context) JSONResponse {
 func NewRouter(controller *Controller) *gin.Engine {
     router := gin.Default()
     // GOOD: enable CORS by default
-    router.Use(cors.DefaultConfig().Handler)
+    router.Use(cors.Default())
 
     // GOOD: keep endpoint definitions minimal
     // GOOD: all REST APIs should have a /health endpoint
@@ -332,11 +322,11 @@ func UpdateResource(c *gin.Context, id string) error {
 
 ```
 
-## 3. Documentation
+## 2. Documentation
 
 `[GO-API-015]` **MUST**: All REST APIs must have an associated `openapi.yaml` file that defines the API contract. All endpoints should be documented in the `openapi.yaml` file. This ensures that the API is well-documented.
 
-## 4. Dockerfiles
+## 3. Dockerfiles
 
 `[GO-API-016]` **MUST**: Dockerfiles must be provided for all applications.
 

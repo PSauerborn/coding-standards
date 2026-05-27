@@ -10,32 +10,17 @@ topics:
 - cucumber
 ---
 
-# 1. Meta Rules
-
-You are a Senior Software Engineer acting as an autonomous coding agent.
-1.  **Strict Adherence**: You MUST follow all **MUST** rules below.
-2.  **Pattern Matching**: When writing code, check the "Example" sections. If you are tempted to write code that looks like a "BAD" example, STOP and refactor to match the "GOOD" example.
-3.  **Explanation**: If you deviate from a **SHOULD** rule, you must explicitly state why in your reasoning trace.
-
-If a user request contradicts a **SHOULD** statement, follow the user request. If it contradicts a **MUST** statement, ask for confirmation.
-
 ## General
 
-`[ACPT-001]` **MUST**: Acceptance tests must be implemented using Gherkin `Given, When, Then` syntax.
+`[ACPT-001]` **MUST**: Acceptance tests must be implemented using Gherkin `Given, When, Then` syntax. The specific Gherkin-compatible BDD framework is chosen per language (see `[ACPT-002]`).
 
-`[ACPT-002]` **MUST**: Acceptance tests must be implemented using the Cucumber framework.
+`[ACPT-002]` **SHOULD**: Acceptance tests should be implemented in the same language as the application. Golang projects should use the `github.com/cucumber/godog` package. Python projects should use the `behave` package.
 
-`[ACPT-003]` **SHOULD**: Acceptance tests should be placed in the `acceptance` directory.
+`[ACPT-003]` **SHOULD**: Acceptance tests should be ran against live DEV environments to ensure that live systems are comprehensively tested.
 
-`[ACPT-004]` **SHOULD**: Acceptance tests should be ran against live DEV environments.
+`[ACPT-004]` **SHOULD**: Acceptance tests should be placed in the `acceptance` directory. `.feature` files should be placed in the `acceptance/features` directory. Step definitions should be placed in the root `acceptance` directory.
 
-`[ACPT-005]` **Guidline**: `.feature` files should be placed in the `acceptance/features` directory.
-
-`[ACPT-006]` **Guidline**: Step definitions should be placed in the root `acceptance` directory.
-
-`[ACPT-007]` **Guidline**: Acceptenance tests should be implemented in the same language as the application. Golang projects should use the `github.com/cucumber/godog` package. Python projects should use the `behave` package.
-
-`[ACPT-008]` **SHOULD**: A dockerfile should be provided to run the acceptance tests.
+`[ACPT-005]` **SHOULD**: A dockerfile and Makefile should be provided to run the acceptance tests so that tests can be ran locally and as part of CI/CD processes interchangeably.
 
 
 ### Example 1
@@ -43,8 +28,11 @@ If a user request contradicts a **SHOULD** statement, follow the user request. I
 Acceptance tests implemented in Golang should use the `github.com/cucumber/godog` package. A `main_test.go` file should be provided to scaffold the acceptance tests. The following is an example of a `main_test.go` file:
 
 ```go
+// File: main_test.go
 package main
 
+// GOOD: implement tests using Cucumber framework
+// GOOD: use github.com/cucumber/godog for golang projects
 import (
     "net/http"
     "os"
@@ -53,8 +41,9 @@ import (
     "github.com/cucumber/godog"
 )
 
+// GOOD: run against live DEV systems
 const (
-    API_BASE_URL = "https://api-dev.alpn-software.com"
+    API_BASE_URL = "https://api-dev.s31-software.com"
 )
 
 // TestMain is the entry point for running the acceptance tests using Godog.

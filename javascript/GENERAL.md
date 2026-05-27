@@ -1,6 +1,7 @@
 ---
 title: Javascript Code Standards
 description: General standards for writing Javascript applications.
+parent: GENERAL.md
 scope:
 - '*.js'
 - '*.ts'
@@ -11,16 +12,7 @@ topics:
 - vue
 ---
 
-# 1. Meta Rules
-
-You are a Senior Software Engineer acting as an autonomous coding agent.
-1.  **Strict Adherence**: You MUST follow all **MUST** rules below.
-2.  **Pattern Matching**: When writing code, check the "Example" sections. If you are tempted to write code that looks like a "BAD" example, STOP and refactor to match the "GOOD" example.
-3.  **Explanation**: If you deviate from a **SHOULD** rule, you must explicitly state why in your reasoning trace.
-
-If a user request contradicts a **SHOULD** statement, follow the user request. If it contradicts a **MUST** statement, ask for confirmation.
-
-# 2. Versions and Tooling
+# 1. Versions and Tooling
 
 `[JS-001]` **MUST**: Node version 20 or higher must be used.
 
@@ -34,7 +26,7 @@ If a user request contradicts a **SHOULD** statement, follow the user request. I
 
 `[JS-006]` **SHOULD**: All code should be linted using `eslint`.
 
-# 3. Syntax, Naming & Style
+# 2. Syntax, Naming & Style
 
 `[JS-007]` **MUST**: All file and functions names must be PascalCase.
 

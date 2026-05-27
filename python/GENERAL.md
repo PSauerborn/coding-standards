@@ -2,6 +2,7 @@
 title: Python Code Standards
 description: General standards for writing Python applications.
 scope: '*.py'
+parent: GENERAL.md
 topics:
 - python
 - pydantic
@@ -10,16 +11,7 @@ topics:
 - structlog
 ---
 
-# 1. Meta Rules
-
-You are a Senior Software Engineer acting as an autonomous coding agent.
-1.  **Strict Adherence**: You MUST follow all **MUST** rules below.
-2.  **Pattern Matching**: When writing code, check the "Example" sections. If you are tempted to write code that looks like a "BAD" example, STOP and refactor to match the "GOOD" example.
-3.  **Explanation**: If you deviate from a **SHOULD** rule, you must explicitly state why in your reasoning trace.
-
-If a user request contradicts a **SHOULD** statement, follow the user request. If it contradicts a **MUST** statement, ask for confirmation.
-
-# 2. Versions and Tooling
+# 1. Versions and Tooling
 
 `[PY-001]` **MUST**: Python version 3.13 or higher must be used.
 
@@ -29,7 +21,7 @@ If a user request contradicts a **SHOULD** statement, follow the user request. I
 
 `[PY-004]` **SHOULD**: All code should be linted using `flake8`.
 
-# 3. Syntax, Naming & Style
+# 2. Syntax, Naming & Style
 
 `[PY-005]` **MUST**: All file and functions names must be snake_case. This ensures adherence to PEP 8.
 
@@ -47,13 +39,13 @@ If a user request contradicts a **SHOULD** statement, follow the user request. I
 
 `[PY-012]` **SHOULD**: Source code should be placed in a `src` directory. A single `main.py` or `app.py` file should serve as the entry point at the root of the `src` directory.
 
-# 4. Data Models and Validation
+# 3. Data Models and Validation
 
 `[PY-013]` **MUST**: Data models must be defined in a dedicated `models.py` file.
 
-`[PY-014]` **MUST**: Data models must be implenented using `pydantic`.
+`[PY-014]` **MUST**: Data models must be implemented using `pydantic`.
 
-`[PY-015]` **SHOULD**: Data models should be used throught the application to group related data. This ensures that the code base is more type-safe, and makes the code more readable.
+`[PY-015]` **SHOULD**: Data models should be used throughout the application to group related data. This ensures that the code base is more type-safe, and makes the code more readable.
 
 `[PY-016]` **SHOULD**: An alias should be defined for fields using the `pydantic` `Field` class if applicable. Only add aliases if it is necessary to ensure that the model is compatible with either the API or the database schema.
 
@@ -91,7 +83,7 @@ class User(BaseModel):
 
 ```
 
-# 5. Configuration
+# 4. Configuration
 
 `[PY-020]` **MUST**: Configuration must be handled via environment variables. This ensures that configuration is decoupled from code and can be easily changed without modifying code.
 
@@ -131,7 +123,7 @@ CONFIG = Config()
 
 ```
 
-# 6. Unittests
+# 5. Unittests
 
 `[PY-025]` **MUST**: Unittests must be implemented for all business logic.
 
@@ -159,7 +151,7 @@ CONFIG = Config()
 
 `[PY-036]` **MUST**: When using DynamoDB, a `tests/data/initial_db_items.json` file must be provided that defines the initial items in the table.
 
-`[PY-037]` **MUST**: When using DynamoDB, a `mock_table` `pytest` fixture should be implemented in the `conftest.py` file. This should create the table using the schema defined in `tests/data/table_schema.json` and populate it with the items defined in `tests/data/initial_db_items.json`. See Example 3 for an implementation.
+`[PY-037]` **MUST**: When using DynamoDB, a `mock_table` `pytest` fixture must be implemented in the `conftest.py` file. This fixture must create the table using the schema defined in `tests/data/table_schema.json` and populate it with the items defined in `tests/data/initial_db_items.json`. See Example 3 for an implementation.
 
 ### Example 3
 
@@ -167,7 +159,7 @@ The following example illustrates a unittest implementation for a function that 
 
 ```python
 # GOOD
-# File: tests/confest.py
+# File: tests/conftest.py
 import json
 
 import pytest
@@ -200,7 +192,7 @@ def mock_table():
 
 ```
 
-# 7. Logging
+# 6. Logging
 
 `[PY-038]` **MUST**: All applications must implement logging. Logging should be present at all levels of the application.
 
@@ -248,7 +240,7 @@ if __name__ == "__main__":
 
 ```
 
-The following example illustrates how logging should NOT be implemeted:
+The following example illustrates how logging should NOT be implemented:
 
 ```python
 # BAD
@@ -276,7 +268,7 @@ def main():
 
 ```
 
-# 8. Persistence Layers
+# 7. Persistence Layers
 
 `[PY-041]` **MUST**: Persistence layers must have their own dedicated file that contains all storage logic.
 
@@ -593,7 +585,7 @@ def get_users() -> list[dict]:
     return response["Items"]
 ```
 
-# 9. REST APIs
+# 8. REST APIs
 
 `[PY-052]` **MUST**: REST APIs must accept and return JSON data. Exceptions can be made for file uploads and responses where binary data is required. 
 
@@ -743,10 +735,10 @@ if __name__ == "__main__":
 ```
 
 
-The following example illustrates how REST APIs should NOT be structure:
+The following example illustrates how REST APIs should NOT be structured:
 
 ```python
-# GOOD
+# BAD
 # main.py
 import psycopg
 from fastapi import FastAPI, Request
@@ -848,19 +840,17 @@ if __name__ == "__main__":
 ```
 
 
-# 10. Dockerfiles
+# 9. Dockerfiles
 
 `[PY-069]` **MUST**: Dockerfiles must be provided for all applications. 
 
-`[PY-070]` **MUST**: Dockerfiles must be implemented as multi-stage builds. 
+`[PY-070]` **MUST**: Dockerfiles must be implemented as multi-stage builds. Non-essential files should be excluded from the final image. This ensures that the final image is as small as possible.
 
 `[PY-071]` **MUST**: Images must be built for AMD linux architecture. Use the `--platform linux/amd64` flag to specify the architecture when building the image. Additionally, the `--provenance=false` flag must be used to disable provenance.
 
-`[PY-072]` **MUST**: Non-essential files should be excluded from the final image. This ensures that the final image is as small as possible.
+`[PY-072]` **SHOULD**: Dockerfiles should consist of two stages. The first stage should run unittests, the second stage should build the application and run the application. The runtime image should be as small as possible. Prefer a smaller image over a larger image. See `Example 7` for an illustration.
 
-`[PY-073]` **SHOULD**: Dockerfiles should consist of two stages. The first stage should run unittests, the second stage should build the application and run the application. The runtime image should be as small as possible. Prefer a smaller image over a larger image. See `Example 7` for an illustration.
-
-`[PY-074]` **SHOULD**: The runtime image should be based on a slim image. Prefer debian based images over alpine based images. This avoids issues with missing C libraries and bindings when installing dependencies. See `Example 7` for an illustration.
+`[PY-073]` **SHOULD**: The runtime image should be based on a slim image. Prefer debian based images over alpine based images. This avoids issues with missing C libraries and bindings when installing dependencies. See `Example 7` for an illustration.
 
 ### Example 7
 
