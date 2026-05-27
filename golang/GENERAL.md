@@ -22,9 +22,9 @@ topics:
 
 ## 2. Syntax, Naming & Style
 
-`[GO-005]` **MUST**: All functions must have a doc string that clearly describes the purpose of the function, its parameters, and its return values. The first word of every doc string should be the name of the function. This ensures that the doc string is easily searchable.
+`[GO-005]` **MUST**: All functions must have a doc comment that clearly describes the purpose of the function, its parameters, and its return values. The first word of every doc comment should be the name of the function. This ensures that the doc comment is easily searchable.
 
-`[GO-006]` **MUST**: Filename must all be snake_case.
+`[GO-006]` **MUST**: Filenames must all be snake_case.
 
 `[GO-007]` **SHOULD**: Prefer functional programming patterns (pure functions, immutability) over object-oriented patterns (classes, inheritance).
 
@@ -234,15 +234,7 @@ func TestSomeFunctionPath2(t *testing.T) {
 
 ## 7. Logging
 
-`[GO-033]` **MUST**: All applications must implement logging. Logging should be present at all levels of the application.
-
-`[GO-034]` **MUST**: Logging must follow a structured logging format. All log messages should contain at minimum the timestamp, log level, and message.
-
-`[GO-035]` **SHOULD**: The log level should be configurable.
-
-`[GO-036]` **SHOULD**: Kept logged messages minimal. Favor providing additional data and context via structured logging fields.
-
-`[GO-037]` **SHOULD**: Logging should be handled via the `github.com/sirupsen/logrus` package, ideally using the `logrus.JSONFormatter`.
+`[GO-033]` **SHOULD**: Structured logging should be implemented using the `github.com/sirupsen/logrus` package with the `logrus.JSONFormatter`.
 
 ### Example 3
 
@@ -269,8 +261,15 @@ func main() {
     }
     log.SetLevel(log.Level(logLevel))
 
-    // GOOD: use structlogging
-    log.SetFormatter(&log.JSONFormatter{})
+    f, err := os.OpenFile("/var/log/app.log", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	mw := io.MultiWriter(os.Stdout, f)
+    // GOOD: Write both to file and stdout
+	log.SetOutput(mw)
+	log.SetFormatter(&logrus.JSONFormatter{})
 
     // GOOD: implement logging at all levels of the application
     // GOOD: use log.WithFields to provide additional context
@@ -286,25 +285,25 @@ func main() {
 
 ## 8. Persistence Layers
 
-`[GO-038]` **MUST**: Persistence layers must have their own dedicated file that contains all storage logic.
+`[GO-034]` **MUST**: Persistence layers must have their own dedicated file that contains all storage logic.
 
-`[GO-039]` **MUST**: Persistence layers must be implemented via an interface. Each interface must have an associated `New` constructor that returns a new instance of the interface, which should accept connection parameters as arguments. Database clients must be initialized in the `New` constructor and set as a field of the interface implementation. See `Example 4` for an illustration.
+`[GO-035]` **MUST**: Persistence layers must be implemented via an interface. Each interface must have an associated `New` constructor that returns a new instance of the interface, which should accept connection parameters as arguments. Database clients must be initialized in the `New` constructor and set as a field of the interface implementation. See `Example 4` for an illustration.
 
-`[GO-040]` **MUST**: Any database operations that require multiple queries/steps must be executed within a transaction statement. This ensures that database operations are atomic and consistent, and minimizes the risk of incomplete or inconsistent data.
+`[GO-036]` **MUST**: Any database operations that require multiple queries/steps must be executed within a transaction statement. This ensures that database operations are atomic and consistent, and minimizes the risk of incomplete or inconsistent data.
 
-`[GO-041]` **MUST**: Database connections must be closed when the application is terminated.
+`[GO-037]` **MUST**: Database connections must be closed when the application is terminated.
 
-`[GO-042]` **MUST**: Persistence layers must be implemented in a thread-safe manner.
+`[GO-038]` **MUST**: Persistence layers must be implemented in a thread-safe manner.
 
-`[GO-043]` **SHOULD**: Persistence layers should be implemented using the repository pattern.
+`[GO-039]` **SHOULD**: Persistence layers should be implemented using the repository pattern.
 
-`[GO-044]` **SHOULD**: Favor returning domain models from persistence layers unless only a single value is being returned. This ensures that related data items are grouped, and that code stays readable.
+`[GO-040]` **SHOULD**: Favor returning domain models from persistence layers unless only a single value is being returned. This ensures that related data items are grouped, and that code stays readable.
 
-`[GO-045]` **SHOULD**: IDs and timestamps should be generated within the persistence layer function(s) rather than in the application layer. This minimizes the number of arguments required and ensures that IDs and timestamps are consistently generated across the application.
+`[GO-041]` **SHOULD**: IDs and timestamps should be generated within the persistence layer function(s) rather than in the application layer. This minimizes the number of arguments required and ensures that IDs and timestamps are consistently generated across the application.
 
-`[GO-046]` **SHOULD**: Persistence layer functions that create new records should return the ID of the generated resources and any associated errors.
+`[GO-042]` **SHOULD**: Persistence layer functions that create new records should return the ID of the generated resources and any associated errors.
 
-`[GO-047]` **SHOULD**: PostgreSQL should be used by default if not otherwise specified.
+`[GO-043]` **SHOULD**: PostgreSQL should be used by default if not otherwise specified.
 
 ### Example 4
 
@@ -431,9 +430,9 @@ func GetUser(email string) (string, string, error) {
 
 ### PostgreSQL
 
-`[GO-048]` **MUST**: PostgreSQL persistence layers must be implemented using the `github.com/jackc/pgx/v5` package. This enforces consistency across all applications.
+`[GO-044]` **MUST**: PostgreSQL persistence layers must be implemented using the `github.com/jackc/pgx/v5` package. This enforces consistency across all applications.
 
-`[GO-049]` **SHOULD**: Connection pools should be used in most cases rather than isolated connections. This ensures that connections are reused and that the application does not consume too many resources.
+`[GO-045]` **SHOULD**: Connection pools should be used in most cases rather than isolated connections. This ensures that connections are reused and that the application does not consume too many resources.
 
 ### Example 6
 
@@ -528,3 +527,4 @@ func (db *PostgresPersistenceLayer) GetUserById(id string) (User, error) {
     return user, nil
 }
 ```
+

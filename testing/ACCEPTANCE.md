@@ -13,7 +13,7 @@ topics:
 
 # Acceptance Testing Standards
 
-## General
+## 1. General
 
 `[ACPT-001]` **MUST**: Acceptance tests must be implemented using Gherkin `Given, When, Then` syntax. The specific Gherkin-compatible BDD framework is chosen per language (see `[ACPT-002]`).
 

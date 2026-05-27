@@ -7,7 +7,6 @@ parent: GENERAL.md
 topics:
 - python
 - pydantic
-- fastapi
 - pytest
 - structlog
 ---
@@ -26,11 +25,11 @@ topics:
 
 ## 2. Syntax, Naming & Style
 
-`[PY-005]` **MUST**: All file and functions names must be snake_case. This ensures adherence to PEP 8.
+`[PY-005]` **MUST**: All file and function names must be snake_case. This ensures adherence to PEP 8.
 
-`[PY-006]` **MUST**: All functions must have a doc string that clearly describes the purpose of the function, its parameters, and its return values. The first word of every doc string should be the name of the function. This ensures that the doc string is easily searchable.
+`[PY-006]` **MUST**: All functions must have a docstring that clearly describes the purpose of the function, its parameters, and its return values. The first word of every docstring should be the name of the function. This ensures that the docstring is easily searchable.
 
-`[PY-007]` **MUST**: All doc strings must be formatted using Google style.
+`[PY-007]` **MUST**: All docstrings must be formatted using Google style.
 
 `[PY-008]` **MUST**: Type hints must be provided for all function parameters and return values.
 
@@ -134,7 +133,7 @@ CONFIG = Config()
 
 `[PY-027]` **MUST**: Unittests must be implemented using the `pytest` package.
 
-`[PY-028]` **MUST**: Each `.py` file should have a corresponding `_test.py` file that contains unittests.
+`[PY-028]` **SHOULD**: Each `.py` file should have a corresponding `test_.py` file that contains unittests.
 
 `[PY-029]` **SHOULD**: The `tests` directory should contain a `conftest.py` file that contains common test fixtures.
 
@@ -179,7 +178,7 @@ def mock_dynamodb_resource():
 @pytest.fixture
 # GOOD: create table using schema defined in tests/data/table_schema.json
 # GOOD: populate table with items defined in tests/data/initial_db_items.json
-def mock_table():
+def mock_table(mock_dynamodb_resource):
     with open("tests/data/table_schema.json", "r") as f:
         table_schema = json.load(f)
 
@@ -197,11 +196,7 @@ def mock_table():
 
 ## 6. Logging
 
-`[PY-038]` **MUST**: All applications must implement logging. Logging should be present at all levels of the application.
-
-`[PY-039]` **MUST**: Logging must follow a structured logging format. All log messages should contain at minimum the timestamp, log level, and message.
-
-`[PY-040]` **SHOULD**: Logging should be handled via the `structlog` package. See Example 4 for an implementation.
+`[PY-038]` **SHOULD**: Logging should be handled via the `structlog` package. See Example 4 for an implementation.
 
 ### Example 4
 
@@ -273,17 +268,17 @@ def main():
 
 ## 7. Persistence Layers
 
-`[PY-041]` **MUST**: Persistence layers must have their own dedicated file that contains all storage logic.
+`[PY-039]` **MUST**: Persistence layers must have their own dedicated file that contains all storage logic.
 
-`[PY-042]` **SHOULD**: Prefer transactional operations that execute multiple database operations as a single unit of work. This ensures that database operations are atomic and consistent, and minimizes the risk of incomplete or inconsistent data.
+`[PY-040]` **SHOULD**: Prefer transactional operations that execute multiple database operations as a single unit of work. This ensures that database operations are atomic and consistent, and minimizes the risk of incomplete or inconsistent data.
 
-`[PY-043]` **SHOULD**: Prefer a functional approach when implementing persistence layers.
+`[PY-041]` **SHOULD**: Prefer a functional approach when implementing persistence layers.
 
-`[PY-044]` **SHOULD**: Persistence layers should consist of a series of functions that take the database client as the first argument, then execute any required database operations.
+`[PY-042]` **SHOULD**: Persistence layers should consist of a series of functions that take the database client as the first argument, then execute any required database operations.
 
-`[PY-045]` **SHOULD**: Persistence layers should return domain models where multiple input and return values are required. See `Example 5` for an illustration.
+`[PY-043]` **SHOULD**: Persistence layers should return domain models where multiple input and return values are required. See `Example 5` for an illustration.
 
-`[PY-046]` **SHOULD**: PostgreSQL should be used by default if not otherwise specified.
+`[PY-044]` **SHOULD**: PostgreSQL should be used by default if not otherwise specified.
 
 ### Example 5
 
@@ -454,17 +449,17 @@ def get_user(user_id: int):
 
 ### PostgreSQL
 
-`[PY-047]` **MUST**: PostgreSQL persistence layers must be implemented using the `psycopg` package. This enforces consistency across all applications.
+`[PY-045]` **MUST**: PostgreSQL persistence layers must be implemented using the `psycopg` package. This enforces consistency across all applications.
 
-`[PY-048]` **SHOULD**: Autocommit should be disabled by default in favor of transactions. This ensures that database operations are atomic and consistent and minimizes the risk of incomplete or inconsistent data.
+`[PY-046]` **SHOULD**: Autocommit should be disabled by default in favor of transactions. This ensures that database operations are atomic and consistent and minimizes the risk of incomplete or inconsistent data.
 
-`[PY-049]` **SHOULD**: `psycopg` connections should use a `dict_row` cursor factory. This ensures that database operations return a dictionary of column names and values that can be fed directly into `pydantic` models. See `Example 3` for an illustration.
+`[PY-047]` **SHOULD**: `psycopg` connections should use a `dict_row` cursor factory. This ensures that database operations return a dictionary of column names and values that can be fed directly into `pydantic` models. See `Example 3` for an illustration.
 
 ### DynamoDB
 
-`[PY-050]` **MUST**: DynamoDB persistence layers must be implemented using the `boto3` package. This enforces consistency across all applications.
+`[PY-048]` **MUST**: DynamoDB persistence layers must be implemented using the `boto3` package. This enforces consistency across all applications.
 
-`[PY-051]` **SHOULD**: Prefer using `boto3` table resources instead of clients. This ensures that responses from DynamoDB can be passed directly into `pydantic` models without requiring parsing of DynamoDB types. If a `boto3` client is required (such as when using `BatchGetItem`), extract the client from the table object using `table.meta.client`.
+`[PY-049]` **SHOULD**: Prefer using `boto3` table resources instead of clients. This ensures that responses from DynamoDB can be passed directly into `pydantic` models without requiring parsing of DynamoDB types. If a `boto3` client is required (such as when using `BatchGetItem`), extract the client from the table object using `table.meta.client`.
 
 ### Example 6
 
@@ -588,302 +583,3 @@ def get_users() -> list[dict]:
     return response["Items"]
 ```
 
-## 8. REST APIs
-
-`[PY-052]` **MUST**: REST APIs must accept and return JSON data. Exceptions can be made for file uploads and responses where binary data is required. 
-
-`[PY-053]` **MUST**: REST APIs must structure responses in a consistent manner. 
-
-`[PY-054]` **MUST**: REST APIs must have a version prefix in the URL. This ensures that APIs can be versioned and that old APIs can be deprecated.
-
-`[PY-055]` **MUST**: Error responses must contain an `error` field, and an optional `details` field. The `error` field must contain a generic error message i.e. "Internal Server Error", "Bad Request" etc. The `details` field should contain additional details about the error where applicable. 
-
-`[PY-056]` **MUST**: Success responses must return data in a `data` field.
-
-`[PY-057]` **MUST**: All REST APIs must have an associated `openapi.yaml` file that defines the API contract. This ensures that the API is well-documented.
-
-`[PY-058]` **SHOULD**: REST API endpoints should follow a dependency injection pattern. Prefer initialization of dependencies within the endpoint handler rather than within business logic. See `Example 7` for an illustration.
-
-`[PY-059]` **SHOULD**: REST APIs should be implemented using the `FastAPI` package.
-
-`[PY-060]` **SHOULD**: REST APIs should be run using `uvicorn`.
-
-`[PY-061]` **SHOULD**: Registration of endpoints should be kept minimal and only contain the basic logic for routing, creation of depedencies such as database clients, and error handling. All business logic should be implemented outside of the endpoint definition.
-
-`[PY-062]` **SHOULD**: Database clients and other dependencies should be initialized within the endpoint handler, when the endpoint is invoked. Prefer a new database/client/service connection for each request as this avoids long-lived connections and reduces the risk of connection leaks. See `Example 7` for an illustration.
-
-`[PY-063]` **SHOULD**: DTO datamodels should be defined separately from domain models using the `pydantic` package, and should include validation for all fields.
-
-`[PY-064]` **SHOULD**: Each endpoint should have a `endpoint_name` function. It should return a `JSONResponse` instance that contains the HTTP response code, and body. See `Example 7` for an illustration.
-
-`[PY-065]` **SHOULD**: `Depends` should be used to inject dependencies into endpoint handlers. This ensures that dependencies are initialized only once per request.
-
-`[PY-066]` **SHOULD**: CORS should be enabled for REST APIs by default via the `fastapi.middleware.cors` package.
-
-`[PY-067]` **SHOULD**: Each endpoint should have its own unittest.
-
-`[PY-068]` **SHOULD**: When returning `pydantic` models, use the `model_dump` method with the `mode="json"` argument to ensure that the model is serialized to a JSON object.
-
-### Example 7
-
-The following example illustrates how a REST API should be structured.
-
-```python
-# GOOD
-# main.py
-import structlog
-import psycopg
-from fastapi import FastAPI, Depends, Request
-from fastapi.responses import JSONResponse
-from fastapi.middleware.cors import CORSMiddleware
-
-from models import User, NewUserRequest
-from persistence import new_postgres_connection, create_user
-from config import CONFIG
-
-LOGGER = structlog.get_logger()
-
-
-APP = FastAPI()
-# GOOD: CORS is enabled by default.
-APP.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-
-def get_current_user(request: Request) -> User:
-    """Retrieves the current user from the request.
-
-    Args:
-        request (Request): The incoming request.
-
-    Returns:
-        User: The current user.
-    """
-
-    return request.state.user
-
-
-@APP.get("/v1/health")
-def health() -> JSONResponse: # GOOD: Return type is specified.
-    """Handles health checks by pinging the database.
-
-    Returns:
-        JSONResponse: A JSON response indicating the health status.
-    """
-
-    LOGGER.info("Processing new request.", method="GET", endpoint="/health")
-    # GOOD: Use JSONResponse to return a JSON response.
-    return JSONResponse(status_code=200, content={"data": "ok"})
-
-
-@APP.get("/v1/users/me")
-def get_user(db: psycopg.Cursor = Depends(new_postgres_connection), user: User = Depends(get_current_user)) -> JSONResponse: # GOOD: Return type is specified.
-    """Handles the retrieval of the current user.
-
-    Args:
-        db (psycopg.Cursor): The database cursor.
-        user (User): The current user.
-
-    Returns:
-        JSONResponse: A JSON response containing the user data.
-    """
-
-    # GOOD: logging is implemented using structlog.
-    LOGGER.info("Processing new request.", method="GET", endpoint="/users/me", user_id=user.user_id)
-    
-    user = get_user(db, user.user_id)
-    if user is None:
-        LOGGER.error("User not found.", user_id=user.user_id)
-        return JSONResponse(status_code=404, content={"error": "User not found"})
-    
-    LOGGER.info("User retrieved.", user=user)
-
-    # GOOD: use model_dump to serialize pydantic model to json
-    data = user.model_dump(mode="json")
-    return JSONResponse(status_code=200, content={"data": data})
-
-
-@APP.post("/v1/users")
-# GOOD: Dependencies are injected via Depends.
-# GOOD: DTO is defined separately from domain model.
-def create_user(user: NewUserRequest, db: psycopg.Cursor = Depends(new_postgres_connection)) -> JSONResponse: # GOOD: Return type is specified.
-    """Handles the creation of a new user.
-
-    Args:
-        user (NewUserRequest): The new user request object.
-        db (psycopg.Cursor): The database cursor.
-
-    Returns:
-        JSONResponse: A JSON response containing the ID of the newly created user.
-    """
-
-    # GOOD: logging is implemented using structlog.
-    LOGGER.info("Processing new request.", method="POST", endpoint="/users", user=user)
-    
-    user_id = create_user(db, user.username, user.email)
-    LOGGER.info("User created.", user_id=user_id)
-    
-    return JSONResponse(status_code=201, content={"data": user_id})
-
-
-if __name__ == "__main__":
-    import uvicorn
-    
-    uvicorn.run(APP, host="0.0.0.0", port=CONFIG.PORT)
-```
-
-
-The following example illustrates how REST APIs should NOT be structured:
-
-```python
-# BAD
-# main.py
-import psycopg
-from fastapi import FastAPI, Request
-
-from models import User, NewUserRequest
-from persistence import new_postgres_connection, create_user
-from config import CONFIG
-
-
-APP = FastAPI()
-# BAD: CORS is not enabled.
-
-
-def get_current_user(request: Request) -> User:
-    """Retrieves the current user from the request.
-
-    Args:
-        request (Request): The incoming request.
-
-    Returns:
-        User: The current user.
-    """
-
-    return request.state.user
-
-
-@APP.get("/v1/health")
-def health(): # BAD: Return type is not specified.
-    """Handles health checks by pinging the database."""
-
-    # BAD: logging is not implemented.
-    print("Processing new request.", method="GET", endpoint="/health")
-
-    # BAD: Use JSONResponse to return a JSON response.
-    # BAD: response does not match defined contract.
-    return {"msg": "ok"}
-
-
-@APP.get("/v1/users/me")
-def get_user():
-    """Handles the retrieval of the current user.
-
-    Args:
-        db (psycopg.Cursor): The database cursor.
-        user (User): The current user.
-
-    Returns:
-        JSONResponse: A JSON response containing the user data.
-    """
-
-    # BAD: Dependencies should be injected via Depends.
-    user = get_current_user(request)
-    # BAD: logging is not implemented.
-    print(f"Processing request to retrieve user: {user}")
-
-    # BAD: Dependencies should be injected via Depends.
-    db = new_postgres_connection()
-    
-    user = get_user(db, user.user_id)
-    if user is None:
-        print("User not found.", user_id=user.user_id)
-        return JSONResponse(status_code=404, content={"error": "User not found"})
-    
-    print(f"User retrieved: {user}")
-
-    # BAD: pydantic models should be serialized with model_dump(mode="json") before being returned
-    # BAD: JSONResponse should be used to return a JSON response.
-    # BAD: response does not match defined contract.
-    return user
-
-
-@APP.post("/v1/users")
-# BAD: Dependencies should be injected via Depends.
-# BAD: DTO is defined separately from domain model.
-def create_user(user: User): # BAD: Return type is not specified.
-    """Handles the creation of a new user.
-
-    Args:
-        user (User): The new user request object.
-    """
-
-    # BAD: Dependencies should be injected via Depends.
-    db = new_postgres_connection()
-
-    # BAD: logging should be implemented using structlog.
-    print(f"Processing request to create new user: {user}")
-    
-    user_id = create_user(db, user.username, user.email)
-    print(f"User created with id: {user_id}")
-
-    # BAD: JSONResponse should be used to return a JSON response.
-    return {"data": user_id}
-
-
-if __name__ == "__main__":
-    import uvicorn
-    
-    uvicorn.run(APP, host="0.0.0.0", port=CONFIG.PORT)
-```
-
-
-## 9. Dockerfiles
-
-`[PY-069]` **MUST**: Dockerfiles must be provided for all applications. 
-
-`[PY-070]` **MUST**: Dockerfiles must be implemented as multi-stage builds. Non-essential files should be excluded from the final image. This ensures that the final image is as small as possible.
-
-`[PY-071]` **MUST**: Images must be built for AMD linux architecture. Use the `--platform linux/amd64` flag to specify the architecture when building the image. Additionally, the `--provenance=false` flag must be used to disable provenance.
-
-`[PY-072]` **SHOULD**: Dockerfiles should consist of two stages. The first stage should run unittests, the second stage should build the application and run the application. The runtime image should be as small as possible. Prefer a smaller image over a larger image. See `Example 7` for an illustration.
-
-`[PY-073]` **SHOULD**: The runtime image should be based on a slim image. Prefer debian based images over alpine based images. This avoids issues with missing C libraries and bindings when installing dependencies. See `Example 7` for an illustration.
-
-### Example 7
-
-The following example shows a minimal dockerfile for a python application that implements a `tests` and a `runtime` stage. Note that a smaller runtime image is used.
-
-```dockerfile
-# GOOD: Use bookworm as base image for tests
-FROM python:3.13-bookworm AS tests
-
-COPY requirements.txt ./
-COPY tests/requirements.txt ./requirements-tests.txt
-
-RUN pip install -U pip && \
-    pip install -r requirements.txt && \
-    pip install -r requirements-tests.txt
-
-COPY src ./
-COPY tests ./tests
-
-CMD ["pytest", "-vv"]
-
-# GOOD: Use slim as base image for runtime
-FROM python:3.13-slim AS runtime
-
-COPY requirements.txt ./
-
-RUN pip install -U pip && \
-    pip install -r requirements.txt
-
-COPY src ./
-
-CMD ["python", "src/main.py"]
-```

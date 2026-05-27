@@ -15,6 +15,8 @@ aliases:
   py: python
   postgres: postgresql
   pg: postgresql
+  deploy: deployment
+  containerization: container
 ---
 
 # General Code Standards

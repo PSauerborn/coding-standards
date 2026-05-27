@@ -8,6 +8,8 @@ scope:
 - '*.vue'
 topics:
 - javascript
+- quasar
+- typescript
 - node
 - vue
 ---
@@ -16,7 +18,7 @@ topics:
 
 ## 1. Versions and Tooling
 
-`[JS-001]` **MUST**: Node version 20 or higher must be used.
+`[JS-001]` **MUST**: Node version 22 or higher must be used.
 
 `[JS-002]` **MUST**: Applications must be written using Vue3.
 
@@ -28,12 +30,22 @@ topics:
 
 `[JS-006]` **SHOULD**: All code should be linted using `eslint`.
 
+`[JS-007]` **SHOULD**: Applications should be styled with SCSS.
+
 ## 2. Syntax, Naming & Style
 
-`[JS-007]` **MUST**: All file and functions names must be PascalCase.
+`[JS-009]` **MUST**: All file and function names must be camelCase.
 
-`[JS-008]` **MUST**: All functions must have a JSDoc comment that clearly describes the purpose of the function, its parameters, and its return values. The first word of every JSDoc comment should be the name of the function. This ensures that the JSDoc comment is easily searchable.
+`[JS-010]` **MUST**: All functions must have a JSDoc comment that clearly describes the purpose of the function, its parameters, and its return values. The first word of every JSDoc comment should be the name of the function. This ensures that the JSDoc comment is easily searchable.
 
-`[JS-009]` **MUST**: Code must follow DRY (Don't Repeat Yourself) principles. This ensures that code is maintainable and easy to understand.
+`[JS-011]` **MUST**: Code must follow DRY (Don't Repeat Yourself) principles. This ensures that code is maintainable and easy to understand.
 
-`[JS-010]` **MUST**: Code must implement components where possible, inline with DRY principles. This minimizes the amount of code that needs to be written and maintained.
+`[JS-012]` **MUST**: Code must implement components where possible, inline with DRY principles. This minimizes the amount of code that needs to be written and maintained.
+
+## 3. Deployment
+
+`[JS-013]` **MUST**: Frontend applications must be deployed using docker.
+
+`[JS-014]` **MUST**: SPA applications should be built and served via NGINX.
+
+`[JS-015]` **MUST**: SSR applications should be built and served via a node server.
