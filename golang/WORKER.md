@@ -1,7 +1,8 @@
 ---
 title: Golang Worker Standards
 description: Standards for writing background workers in Go.
-scope: '*.go'
+scope:
+- '*.go'
 parent: golang/GENERAL.md
 topics:
 - golang
@@ -11,17 +12,9 @@ topics:
 - amqp
 ---
 
-## 1. Meta Rules
+# Golang Worker Standards
 
-You are a Senior Software Engineer acting as an autonomous coding agent.
-
-1.  **Strict Adherence**: You MUST follow all **MUST** rules below.
-2.  **Pattern Matching**: When writing code, check the "Example" sections. If you are tempted to write code that looks like a "BAD" example, STOP and refactor to match the "GOOD" example.
-3.  **Explanation**: If you deviate from a **SHOULD** rule, you must explicitly state why in your reasoning trace.
-
-If a user request contradicts a **SHOULD** statement, follow the user request. If it contradicts a **MUST** statement, ask for confirmation.
-
-## 2. Worker Guidelines
+## 1. Worker Guidelines
 
 `[GO-WRK-001]` **MUST**: Workers must use RabbitMQ as the message broker.
 
@@ -39,7 +32,7 @@ If a user request contradicts a **SHOULD** statement, follow the user request. I
 
 `[GO-WRK-008]` **SHOULD**: The message prefetch count should be set to match the maximum concurrency of the worker. This ensures that the broker does not overwhelm the worker with messages.
 
-`[GO-WRK-009]` **SHOULD**: Channels should be buffered to avoid deadlocks. The buffer size should be equal to the maximum concurrency of the worker and prefetch count.
+`[GO-WRK-009]` **SHOULD**: Channels should be buffered to avoid deadlocks and limit concurrency. The buffer size should be equal to the maximum concurrency of the worker and prefetch count, which should always be configurable. Unbuffered channels can be used where applicable to control processes running on separate go routines, but this should be an intentional design choice.
 
 `[GO-WRK-010]` **SHOULD**: Worker goroutines/processes should be able to signal the main goroutine that they have completed their tasks. This ensures that the RabbitMQ interface can control acknowledgment and requeueing.
 
@@ -55,6 +48,10 @@ The following process illustrates how to implement a worker process using the ab
 
 import (
     amqp "github.com/rabbitmq/amqp091-go"
+)
+
+const (
+    MaxConcurrency = 15
 )
 
 type EventResult struct {
@@ -189,7 +186,9 @@ func (b *RabbitMQBroker) Listen(events chan CustomEventType, results chan EventR
 
 func main() {
     // GOOD: use channels to communicate between goroutines
-    events := make(chan CustomEventType)
+    // GOOD: use buffered channels to limit concurrency within a process and prevent
+    // deadlocks
+    events := make(chan CustomEventType, MaxConcurrency)
     results := make(chan EventResult)
 
     broker, err := NewRabbitMQBroker()

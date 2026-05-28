@@ -2,27 +2,21 @@
 title: DynamoDB Code Standards
 description: Standards for DynamoDB single-table design and access patterns.
 parent: GENERAL.md
-scope: '*'
+scope:
+- '*'
 topics:
 - dynamodb
 - single-table-design
 - nosql
 ---
 
-# 1. Meta Rules
+# DynamoDB Code Standards
 
-You are a Senior Software Engineer acting as an autonomous coding agent.
-1.  **Strict Adherence**: You MUST follow all **MUST** rules below.
-2.  **Pattern Matching**: When writing code, check the "Example" sections. If you are tempted to write code that looks like a "BAD" example, STOP and refactor to match the "GOOD" example.
-3.  **Explanation**: If you deviate from a **SHOULD** rule, you must explicitly state why in your reasoning trace.
-
-If a user request contradicts a **SHOULD** statement, follow the user request. If it contradicts a **MUST** statement, ask for confirmation.
-
-# 2. Data Modeling
+## 1. Data Modeling
 
 `[DDB-001]` **MUST**: All DynamoDB tables must have `PK` and `SK` as partition and sort key respectively.
 
-`[DDB-002]` **MUST**: All global secondary indexes must have `GSI{N}PK` and `GSI{N}SK` as partition and sort key respectively, where `{N}` is an integer refering to the index number.
+`[DDB-002]` **MUST**: All global secondary indexes must have `GSI{N}PK` and `GSI{N}SK` as partition and sort key respectively, where `{N}` is an integer referring to the index number.
 
 `[DDB-003]` **MUST**: All data stored in a key field must also be stored as a separate attribute in the object. For instance, if an item has partition key `USER#{userId}` then the item must also have a `userId` attribute. This ensures keys can be reconstructed from the non-key item attributes.
 
@@ -32,15 +26,15 @@ If a user request contradicts a **SHOULD** statement, follow the user request. I
 
 `[DDB-006]` **MUST**: Persistence layers must use UTC time when storing timestamps.
 
-`[DDB-007]` **SHOULD**: All DynamoDBN items should have a `createdAt` and `updatedAt` attribute to track when the item was created and last updated.
+`[DDB-007]` **MUST**: Persistence layers must use transactions where possible to ensure data consistency. This helps to prevent data loss and partial updates.
 
-`[DDB-008]` **SHOULD**: The number of items for any given global secondary index should be kept relatively small to avoid large partitions. Prefer duplicating data over several items with different keys/access patterns.
+`[DDB-008]` **SHOULD**: All DynamoDB items should have a `createdAt` and `updatedAt` attribute to track when the item was created and last updated.
 
-`[DDB-009]` **MUST**: Persistence layers must use transactions where possible to ensure data consistency. This helpls to prevent data loss and partial updates.
+`[DDB-009]` **SHOULD**: The number of items for any given global secondary index should be kept relatively small to avoid large partitions. Prefer duplicating data over several items with different keys/access patterns.
 
 `[DDB-010]` **SHOULD**: Persistence layers should use `BatchGetItem` and `BatchWriteItem` operations to reduce the number of individual requests to DynamoDB.
 
-## Example 1
+### Example 1
 
 The following example illustrates how DynamoDB items should be structured and keyed:
 

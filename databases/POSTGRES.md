@@ -2,36 +2,33 @@
 title: PostgreSQL Code Standards
 description: Standards for PostgreSQL data modeling and schema design.
 parent: GENERAL.md
-scope: '*'
+scope:
+- '*'
 topics:
 - postgresql
+- relational
 - data-modeling
 - schema-design
 ---
 
-# 1. Meta Rules
+# PostgreSQL Code Standards
 
-You are a Senior Software Engineer acting as an autonomous coding agent.
-1.  **Strict Adherence**: You MUST follow all **MUST** rules below.
-2.  **Pattern Matching**: When writing code, check the "Example" sections. If you are tempted to write code that looks like a "BAD" example, STOP and refactor to match the "GOOD" example.
-3.  **Explanation**: If you deviate from a **SHOULD** rule, you must explicitly state why in your reasoning trace.
-
-If a user request contradicts a **SHOULD** statement, follow the user request. If it contradicts a **MUST** statement, ask for confirmation.
-
-# 2. Data Modelling
+## 1. Data Modeling
 
 `[PG-001]` **MUST**: PostgreSQL tables must exist under a dedicated schema. This ensures that the database can have multiple, segregated schemas for different components of the sample application.
 
 `[PG-002]` **MUST**: PostgreSQL table names and column names must be in snake_case.
 
-`[PG-003]` **MUST**: Timestamps must be stored in UTC.
+`[PG-003]` **MUST**: Datetime entries must be stored in either UTC ISO8601 format or as unix timestamps.
 
-`[PG-004]` **SHOULD**: Persistence layers should favor transactions over auto-commit. This ensures data consistency and prevents partial updates.
+`[PG-004]` **MUST**: Persistence layers must implement transactions when executing multiple updates. This facilitates atomic operations, and ensures data consistency by preventing partial updates.
 
 `[PG-005]` **SHOULD**: ID fields should consist of high-entropy values, such as UUIDs. Avoid using incrementing integers as IDs.
 
 `[PG-006]` **SHOULD**: Columns should have foreign key constraints to other tables where possible to enforce referential integrity.
 
-`[PG-007]` **SHOULD**: `DELETE` statements should make use of `CASCADE` where applicable to ensure that all related rows are deleted.
+`[PG-007]` **SHOULD**: Link tables should be used to model many-to-many relationships, or where multiple tables reference a shared, generic resource. For example, `users` and `jobs` may each link to a generic `documents` table via link tables, avoiding the need to add user- or job-specific foreign keys to `documents`.
 
 `[PG-008]` **SHOULD**: PostgreSQL tables should have a `created_at` and `updated_at` column to track when the row was created and last updated.
+
+`[PG-009]` **SHOULD**: Avoid using complex data types such arrays and JSONB types in postgres tables.

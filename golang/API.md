@@ -2,7 +2,8 @@
 title: Golang REST API Standards
 description: Standards for writing REST APIs in Go.
 parent: golang/GENERAL.md
-scope: '*.go'
+scope:
+- '*.go'
 topics:
 - golang
 - api
@@ -10,45 +11,19 @@ topics:
 - gin-gonic
 ---
 
-## 1. Meta Rules
+# Golang REST API Standards
 
-You are a Senior Software Engineer acting as an autonomous coding agent.
+## 1. REST API Guidelines
 
-1.  **Strict Adherence**: You MUST follow all **MUST** rules below.
-2.  **Pattern Matching**: When writing code, check the "Example" sections. If you are tempted to write code that looks like a "BAD" example, STOP and refactor to match the "GOOD" example.
-3.  **Explanation**: If you deviate from a **SHOULD** rule, you must explicitly state why in your reasoning trace.
+`[GO-API-001]` **SHOULD**: REST APIs should be implemented using the `github.com/gin-gonic/gin` package.
 
-If a user request contradicts a **SHOULD** statement, follow the user request. If it contradicts a **MUST** statement, ask for confirmation.
+`[GO-API-002]` **SHOULD**: REST APIs should be implemented using a controller pattern. The controller should contain singletons for database clients, service clients, etc. This is especially important when using connection pools to ensure that a single connection pool is shared across all endpoints. See `Example 1` for an illustration.
 
-## 2. REST API Guidelines
+`[GO-API-003]` **SHOULD**: Packages defining REST APIs should have a `NewRouter` constructor that returns a new instance of the router with all plugins and endpoints registered. See `Example 1` for an illustration.
 
-`[GO-API-001]` **MUST**: REST APIs must accept and return JSON data. Exceptions can be made for file uploads and responses where binary data is required.
+`[GO-API-004]` **SHOULD**: The controller should have a `EndpointNameHandler` function for each defined endpoint that takes the `*gin.Context` as its only argument. It should return a `JSONResponse` struct that contains the HTTP response code, and a body. See `Example 1` for an illustration.
 
-`[GO-API-002]` **MUST**: REST APIs must structure responses in a consistent manner.
-
-`[GO-API-003]` **MUST**: REST APIs must have a version prefix in the URL. This ensures that APIs can be versioned and that old APIs can be deprecated.
-
-`[GO-API-004]` **MUST**: Error responses must contain an `error` field, and an optional `details` field. The `error` field must contain a generic error message i.e. "Internal Server Error", "Bad Request" etc. The `details` field should contain additional details about the error where applicable.
-
-`[GO-API-005]` **MUST**: REST APIs must have a `/health` endpoint that checks the health of the API. The health endpoint should check the health of all dependencies and return a `200 OK` response if all dependencies are healthy.
-
-`[GO-API-006]` **MUST**: REST APIs must have a `/version` endpoint that returns the version of the API.
-
-`[GO-API-007]` **SHOULD**: REST API endpoints should follow a dependency injection pattern. Prefer initialization of dependencies within the endpoint handler rather than within business logic. See `Example 1` for an illustration.
-
-`[GO-API-008]` **SHOULD**: REST APIs should be implemented using the `github.com/gin-gonic/gin` package.
-
-`[GO-API-009]` **SHOULD**: REST APIs should be implemented using a controller pattern. The controller should contain singletons for database clients, service clients, etc. See `Example 1` for an illustration.
-
-`[GO-API-010]` **SHOULD**: Packages defining REST APIs should have a `NewRouter` constructor that returns a new instance of the router with all plugins and endpoints registered. See `Example 1` for an illustration.
-
-`[GO-API-011]` **SHOULD**: Registration of endpoints should be kept minimal and only contain the basic logic for routing, creation of dependencies such as database clients, and error handling. All business logic should be implemented in the controller. See `Example 1` for an illustration.
-
-`[GO-API-012]` **SHOULD**: The controller should have a `EndpointNameHandler` function for each defined endpoint that takes the `*gin.Context` as its only argument. It should return a `JSONResponse` struct that contains the HTTP response code, and a body. See `Example 1` for an illustration.
-
-`[GO-API-013]` **SHOULD**: CORS should be enabled for REST APIs by default via the `github.com/gin-contrib/cors` package. See `Example 1` for an illustration.
-
-`[GO-API-014]` **SHOULD**: Each endpoint should have its own unittest.
+`[GO-API-005]` **SHOULD**: CORS middleware should use the `github.com/gin-contrib/cors` package. See `Example 1` for an illustration.
 
 ### Example 1
 
@@ -186,7 +161,7 @@ func (ct *Controller) CreateResource(c *gin.Context) JSONResponse {
 func NewRouter(controller *Controller) *gin.Engine {
     router := gin.Default()
     // GOOD: enable CORS by default
-    router.Use(cors.DefaultConfig().Handler)
+    router.Use(cors.Default())
 
     // GOOD: keep endpoint definitions minimal
     // GOOD: all REST APIs should have a /health endpoint
@@ -213,6 +188,17 @@ func main() {
     // GOOD: load and validate configuration at
     // application start time
     config := LoadConfig()
+
+    f, err := os.OpenFile("/var/log/app.log", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	mw := io.MultiWriter(os.Stdout, f)
+    // GOOD: Write both to file and stdout
+	log.SetOutput(mw)
+	log.SetFormatter(&logrus.JSONFormatter{})
+
 
     // GOOD: use structured logging throughout application
     log.SetFormatter(&log.JSONFormatter{})
@@ -330,66 +316,4 @@ func UpdateResource(c *gin.Context, id string) error {
     c.JSON(http.StatusCreated, id)
 }
 
-```
-
-## 3. Documentation
-
-`[GO-API-015]` **MUST**: All REST APIs must have an associated `openapi.yaml` file that defines the API contract. All endpoints should be documented in the `openapi.yaml` file. This ensures that the API is well-documented.
-
-## 4. Dockerfiles
-
-`[GO-API-016]` **MUST**: Dockerfiles must be provided for all applications.
-
-`[GO-API-017]` **MUST**: Dockerfiles must be implemented as multi-stage builds.
-
-`[GO-API-018]` **MUST**: Images must be built for AMD linux architecture. Use the `--platform linux/amd64` flag to specify the architecture when building the image. Additionally, the `--provenance=false` flag must be used to disable provenance.
-
-`[GO-API-019]` **MUST**: Non-essential files should be excluded from the final image.
-
-`[GO-API-020]` **SHOULD**: Dockerfiles should consist of three stages. The first stage should run unittests, the second stage should build the application, and the third stage should run the application.
-
-`[GO-API-021]` **SHOULD**: Any stages that do not run the application should be based on the full golang image. Stages that run the application should be based on the `gcr.io/distroless/static:nonroot` image.
-
-### Example 3
-
-```dockerfile
-# GOOD: Use golang:1.25 as base image for tests
-# GOOD: implement unittests as first stage
-FROM golang:1.25 AS tests
-
-WORKDIR /app/tests
-
-COPY go.mod go.sum ./
-RUN go mod download
-
-RUN go install gotest.tools/gotestsum@latest
-
-COPY etc ./etc
-COPY *.go ./
-
-CMD ["gotestsum", "--format", "testname"]
-
-# GOOD: Use golang:1.25 as base image for build
-# GOOD: implement build as second stage
-FROM golang:1.25 AS build
-
-WORKDIR /app
-
-COPY go.mod go.sum ./
-RUN go mod download
-
-COPY *.go ./
-
-RUN CGO_ENABLED=0 GOOS=linux go build -o api .
-
-# GOOD: Use gcr.io/distroless/static:nonroot as base image for runtime
-FROM gcr.io/distroless/static:nonroot AS runtime
-
-WORKDIR /app
-
-COPY --from=build /app/api .
-
-COPY etc ./etc
-
-CMD ["./api"]
 ```
