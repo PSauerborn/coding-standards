@@ -1,0 +1,35 @@
+# Pre-commit hooks for this repository.
+# Install:  pip install pre-commit && pre-commit install
+# Run all:  pre-commit run --all-files
+# See https://pre-commit.com for details.
+
+repos:
+  # General-purpose file hygiene checks.
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: end-of-file-fixer          # ensure files end with a single newline
+      - id: trailing-whitespace        # strip trailing whitespace
+        args: [--markdown-linebreak-ext=md]  # preserve markdown hard line breaks
+      - id: mixed-line-ending          # normalize line endings to LF
+        args: [--fix=lf]
+      - id: check-added-large-files    # prevent large blobs from being committed
+        args: [--maxkb=1024]
+      - id: check-merge-conflict       # block unresolved merge conflict markers
+      - id: check-case-conflict        # catch names that clash on case-insensitive filesystems
+      - id: check-yaml                 # validate YAML syntax (agent/skill frontmatter configs)
+      - id: check-json                 # validate JSON syntax
+
+  # Markdown linting.
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.44.0
+    hooks:
+      - id: markdownlint
+        args: [--config, .markdownlint.yaml, --]  # rule config lives in .markdownlint.yaml
+
+  # Secret scanning.
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0
+    hooks:
+      - id: detect-secrets
+        args: [--baseline, .secrets.baseline]

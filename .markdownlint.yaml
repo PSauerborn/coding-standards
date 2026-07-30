@@ -1,0 +1,8 @@
+# markdownlint configuration (consumed by the pre-commit markdownlint hook).
+# See https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md
+default: true
+MD013: false          # allow long lines (prose/tables are not wrapped)
+MD033: false          # allow inline HTML (used in skill/agent docs)
+MD041: false          # allow a non-H1 first line (frontmatter precedes headings)
+MD024:
+  siblings_only: true # allow repeated headings under different parents (e.g. per-phase "Tasks" in templates)
