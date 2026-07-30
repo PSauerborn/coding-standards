@@ -25,7 +25,6 @@ topics:
 
 `[GO-API-005]` **SHOULD**: CORS middleware should use the `github.com/gin-contrib/cors` package. See `Example 1` for an illustration.
 
-
 ### Example 1
 
 The following example illustrates how a REST API should be structured.

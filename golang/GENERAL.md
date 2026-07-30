@@ -527,4 +527,3 @@ func (db *PostgresPersistenceLayer) GetUserById(id string) (User, error) {
     return user, nil
 }
 ```
-

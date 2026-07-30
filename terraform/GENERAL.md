@@ -39,7 +39,7 @@ topics:
 
 `[TF-012]` **SHOULD**: Each module should have a `main.tf`. This should contain a `locals` block that defines a `base_name` that can be used as a prefix for all resources in the module. This should contain the value of the `environment` variable to make sure that resources are not overwritten in different environments.
 
-`[TF-013]` **SHOULD**: Avoid creating dependencies between terraform modules that are not in the same state file. Self-contained modules should always be preferred as it reduces the number of dependencies between terraform components. 
+`[TF-013]` **SHOULD**: Avoid creating dependencies between terraform modules that are not in the same state file. Self-contained modules should always be preferred as it reduces the number of dependencies between terraform components.
 
 ## 3. Configuration
 
@@ -49,12 +49,11 @@ topics:
 
 `[TF-016]` **SHOULD**: A dedicated role should be assumed when accessing AWS resources for provider configuration. See Example 2 for implementation.
 
-
 ### Example 1
 
 The following example illustrates how terraform project should be structured:
 
-```
+```text
 .
 ├── env
 │   ├── dev

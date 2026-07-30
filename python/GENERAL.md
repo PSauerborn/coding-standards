@@ -75,13 +75,13 @@ from typing_extensions import Annotated
 # GOOD: Aliases are used for fields to ensure that the model is compatible with the API
 # GOOD: Default values are used for optional fields
 class User(BaseModel):
-    user_id: Annotated[str, StringConstraints(min_length=1), Field(alias="userId")] 
-    username: Annotated[str, StringConstraints(min_length=1)] 
-    email: Annotated[str, StringConstraints(min_length=1)] 
-    created_at: Annotated[datetime, Field(alias="createdAt")] 
+    user_id: Annotated[str, StringConstraints(min_length=1), Field(alias="userId")]
+    username: Annotated[str, StringConstraints(min_length=1)]
+    email: Annotated[str, StringConstraints(min_length=1)]
+    created_at: Annotated[datetime, Field(alias="createdAt")]
     updated_at: Annotated[datetime | None, Field(alias="updatedAt", default=None)]
-    created_by: Annotated[str, StringConstraints(min_length=1), Field(alias="createdBy")] 
-    last_updated_by: Annotated[str, StringConstraints(min_length=1), Field(alias="lastUpdatedBy")] 
+    created_by: Annotated[str, StringConstraints(min_length=1), Field(alias="createdBy")]
+    last_updated_by: Annotated[str, StringConstraints(min_length=1), Field(alias="lastUpdatedBy")]
 
 ```
 
@@ -189,7 +189,7 @@ def mock_table(mock_dynamodb_resource):
 
     for item in initial_db_items:
         table.put_item(Item=item)
-    
+
     yield table
 
 ```
@@ -289,7 +289,7 @@ The following example illustrates a persistence layer for a generic PostgreSQL d
 # File: persistence.py
 from uuid import uuid4
 
-import psycopg 
+import psycopg
 from psycopg.rows import dict_row
 
 from .config import CONFIG
@@ -573,13 +573,12 @@ def get_users() -> list[dict]:
     # BAD: dependency injection is not used
     client = boto3.client("dynamodb")
 
-    # BAD: table scans are very slow, expensive, and should be avoided in 
+    # BAD: table scans are very slow, expensive, and should be avoided in
     # favor of indexes
     response = client.scan(
         TableName="users",
-    )   
+    )  
 
     # BAD: returning raw data instead of pydantic models makes it harder to enforce data consistency and validation
     return response["Items"]
 ```
-

@@ -33,6 +33,7 @@ Rules often include a short rationale. When a case isn't explicitly covered, app
 **Examples**: each section may include `Good` and `Bad` code samples. The `Bad` samples show real failure modes — not just style preferences. Match the `Good` shape.
 
 **Conflict Resolution**:
+
 - User request vs. **SHOULD** : follow the user.
 - User request vs. **MUST** : stop and confirm before proceeding.
 

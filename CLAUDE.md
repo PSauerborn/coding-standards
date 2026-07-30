@@ -22,6 +22,7 @@ to find applicable coding standards.
 5. If a child standard contradicts a parent, the child takes precedence.
 
 To determine if a node matches your context:
+
 - description: compare the description of the node to the task you're working on
 - scope: compare against the file extensions you're editing
   ("*.py", "*.ts", "*" matches everything)
@@ -31,7 +32,7 @@ To determine if a node matches your context:
 
 ## Development
 
-Review coding standards before making any code changes. 
+Review coding standards before making any code changes.
 
 Development should be done in separate planning and implementation phases. For any task involving more than one file or more than ~20 lines of code, always write an implementation plan to `PLAN.md` first and explicitly wait for approval before proceeding. Once approved, proceed with implementation.
 

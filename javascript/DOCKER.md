@@ -21,7 +21,6 @@ topics:
 
 `[JS-DOCKER-002]` **SHOULD**: SSR applications should be served using the `node` base image. See `Example 3` for an example dockerfile.
 
-
 ### Example 1
 
 ```nginx

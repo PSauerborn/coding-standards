@@ -1,6 +1,6 @@
 # Code Standards
 
-There are a million ways to do things, and every developer has their own preferences and habits. Like anybody working in tech for a prolonged period of time, I'm very opinionated about how to do things. Any AI that I introduced into the process almost certainly did things differently, and when you know exactly what you want, an AI coding agent that does things differently is just annoying. 
+There are a million ways to do things, and every developer has their own preferences and habits. Like anybody working in tech for a prolonged period of time, I'm very opinionated about how to do things. Any AI that I introduced into the process almost certainly did things differently, and when you know exactly what you want, an AI coding agent that does things differently is just annoying.
 
 In my experience, coding with AI is like writting a book with a very talented, very imaginative 6 year old. It can do some great things, but will inevitably go off the rails unless sufficient guidance is provided. Coding with AI turned a page for me once I treated it like any other developer that was working on one of my projects. Just like a junior dev, code produce by AI became dramatically better once I provided:
 
@@ -18,7 +18,7 @@ This repository changed the way I develop with AI. I hope it helps you too.
 
 `code-standards.md` files are markdown files that contain coding standards, best practices and examples of good code. They outline a series of **MUST** and **SHOULD** statements. **MUST** statements are mandatory and must be followed. `code-standards.md` files are intended to provide AI coding agents and tools with a clear set of instructions to enforce coding standards, best practices, and a consistent code style.
 
-`code-standards.md` are organized into a YAML hierarchy that can easily be parsed by agents using the information contained within each file header using [stdidx](https://github.com/psauerborn/stdidx). This allows agents to 
+`code-standards.md` are organized into a YAML hierarchy that can easily be parsed by agents using the information contained within each file header using [stdidx](https://github.com/psauerborn/stdidx). This allows agents to
 selectively apply standards based on the language, domain, and specific patterns they are working with rather than loading a single monolithic standards file into context.
 
 ### Standards Frontmatter

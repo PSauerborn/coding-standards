@@ -20,7 +20,7 @@ topics:
 
 `[API-003]` **MUST**: REST APIs must have a version prefix in the URL. This ensures that APIs can be versioned and that old APIs can be deprecated without breaking existing clients.
 
-`[API-004]` **MUST**: Error responses must contain an `error` field and an optional `details` field. The `error` field must contain a generic error message (e.g. "Internal Server Error", "Bad Request"). The `details` field should contain additional context where applicable. Error responses __must not__ leak any implementation details. If in doubt, keep error details generic to avoid potential data leaks.
+`[API-004]` **MUST**: Error responses must contain an `error` field and an optional `details` field. The `error` field must contain a generic error message (e.g. "Internal Server Error", "Bad Request"). The `details` field should contain additional context where applicable. Error responses **must not** leak any implementation details. If in doubt, keep error details generic to avoid potential data leaks.
 
 `[API-005]` **MUST**: REST APIs must expose a `/health` endpoint that checks the health of the API and its dependencies. The endpoint should return `200 OK` when all dependencies are healthy. The `/health` endpoint should explicitly check database connections if applicable as part of the health check.
 

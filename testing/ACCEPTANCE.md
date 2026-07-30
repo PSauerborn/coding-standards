@@ -25,7 +25,6 @@ topics:
 
 `[ACPT-005]` **SHOULD**: A dockerfile and Makefile should be provided to run the acceptance tests so that tests can be ran locally and as part of CI/CD processes interchangeably.
 
-
 ### Example 1
 
 Acceptance tests implemented in Golang should use the `github.com/cucumber/godog` package. A `main_test.go` file should be provided to scaffold the acceptance tests. The following is an example of a `main_test.go` file:
