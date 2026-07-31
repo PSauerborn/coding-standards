@@ -40,6 +40,8 @@ topics:
 
 The `title` and `description` fields provide a human-readable summary. The `parent` and `scope` fields allow agents to match standards files to the current task context. See [stdidx](https://github.com/psauerborn/stdidx) for more information on how standards are indexed.
 
+This repository also ships a local Go implementation of that indexing contract under [`indexer/`](indexer/), which walks this repository's own corpus and produces `docs/standards-tree.yaml` — the authoritative, checked-in index that agents read. See `indexer/README.md` for its CLI contract and discovery rules.
+
 ### Examples
 
 `code-standards.md` files are rules-only. Code examples live in companion files under an `examples/` directory alongside the standard, **one example per file**, so that `<dir>/<NAME>.md` has its examples in `<dir>/examples/<NAME>/<topic>.md`:
