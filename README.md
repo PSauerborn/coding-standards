@@ -40,6 +40,45 @@ topics:
 
 The `title` and `description` fields provide a human-readable summary. The `parent` and `scope` fields allow agents to match standards files to the current task context. See [stdidx](https://github.com/psauerborn/stdidx) for more information on how standards are indexed.
 
+### Examples
+
+`code-standards.md` files are rules-only. Code examples live in companion files under an `examples/` directory alongside the standard, **one example per file**, so that `<dir>/<NAME>.md` has its examples in `<dir>/examples/<NAME>/<topic>.md`:
+
+```text
+golang/GENERAL.md
+golang/examples/GENERAL/config.md
+golang/examples/GENERAL/unittests.md
+golang/examples/GENERAL/persistence-postgres.md
+```
+
+This keeps the standards themselves small, and keeps the examples selective: an agent loads only the examples for the statements it is actually implementing, rather than every example belonging to the standard. Because each example is its own file, reading the cited file *is* the minimal read — no partial-file discipline is required.
+
+Filenames are named after the **topic**, never a statement ID, so that renumbering statement IDs never invalidates a path.
+
+Companion files have **no frontmatter**. They are not nodes in the standards tree; they are payload that is copied alongside the standard it belongs to. Each one opens with an ID-keyed heading and a `Statements:` line listing every statement it illustrates, so that a search for any covered ID finds the file:
+
+```markdown
+# [GO-022] Configuration Loading
+
+Statements: `[GO-018]` `[GO-020]` `[GO-021]` `[GO-022]` `[GO-023]` `[GO-024]`
+```
+
+A standard declares its companion files via an `examples:` frontmatter key:
+
+```yaml
+examples:
+- examples/GENERAL/config.md
+- examples/GENERAL/unittests.md
+```
+
+In-text references use a path relative to the standard's own directory:
+
+```markdown
+See `examples/GENERAL/config.md` for an illustration.
+```
+
+Because all linkage is directory-relative, references resolve both in this repository and in a synced copy of the standards tree.
+
 ## Licence
 
 Everything in this repository is licensed under the [MIT License](https://choosealicense.com/licenses/mit/). Feel free to use it, modify it, and distribute it as you see fit.

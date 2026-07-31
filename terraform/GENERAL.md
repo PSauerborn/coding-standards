@@ -7,6 +7,9 @@ parent: GENERAL.md
 topics:
 - terraform
 - iac
+examples:
+- examples/GENERAL/project-structure.md
+- examples/GENERAL/provider-state.md
 ---
 
 # Terraform Code Standards
@@ -23,9 +26,9 @@ topics:
 
 ## 2. Syntax, Naming & Style
 
-`[TF-005]` **MUST**: Terraform must be implemented in line with the Google best practices. At minimum, this includes a `modules/main` directory and a `env/{env}` directory for each environment. By default, there should be a `dev` and `prod` environment. See Example 1 for implementation.
+`[TF-005]` **MUST**: Terraform must be implemented in line with the Google best practices. At minimum, this includes a `modules/main` directory and a `env/{env}` directory for each environment. By default, there should be a `dev` and `prod` environment. See `examples/GENERAL/project-structure.md` for implementation.
 
-`[TF-006]` **MUST**: Each environment folder must have at minimum a `provider.tf` file that defines the required providers, a `main.tf` file that invokes the main module found at `modules/main`, and a `outputs.tf` file that defines all outputs used by the environment. See Example 1 for implementation.
+`[TF-006]` **MUST**: Each environment folder must have at minimum a `provider.tf` file that defines the required providers, a `main.tf` file that invokes the main module found at `modules/main`, and a `outputs.tf` file that defines all outputs used by the environment. See `examples/GENERAL/project-structure.md` for implementation.
 
 `[TF-007]` **MUST**: The `modules/main` directory must have at minimum a `main.tf` file that defines the main module, a `versions.tf` file that defines the required Terraform version and the required providers, and a `variables.tf` file that defines all variables used by the module.
 
@@ -43,58 +46,8 @@ topics:
 
 ## 3. Configuration
 
-`[TF-014]` **MUST**: Terraform state must be stored in an S3 bucket. See Example 2 for implementation.
+`[TF-014]` **MUST**: Terraform state must be stored in an S3 bucket. See `examples/GENERAL/provider-state.md` for implementation.
 
-`[TF-015]` **MUST**: Terraform statelocks must be implemented using an S3 lockfile. See Example 2 for implementation.
+`[TF-015]` **MUST**: Terraform statelocks must be implemented using an S3 lockfile. See `examples/GENERAL/provider-state.md` for implementation.
 
-`[TF-016]` **SHOULD**: A dedicated role should be assumed when accessing AWS resources for provider configuration. See Example 2 for implementation.
-
-### Example 1
-
-The following example illustrates how terraform project should be structured:
-
-```text
-.
-├── env
-│   ├── dev
-│   │   ├── main.tf
-│   │   ├── outputs.tf
-│   │   └── provider.tf
-│   └── prod
-│       ├── main.tf
-│       ├── outputs.tf
-│       └── provider.tf
-├── modules
-│   └── main
-│       ├── main.tf
-│       ├── outputs.tf
-│       ├── variables.tf
-│       └── versions.tf
-├── .gitignore
-├── README.md
-```
-
-### Example 2
-
-The following example illustrates how terraform providers should be structured with S3 state storage and DynamoDB statelocks.
-
-```terraform
-# GOOD
-# File: env/dev/provider.tf
-
-terraform {
-  required_version = ">= 1.11.4"
-
-  required_providers {}
-
-  backend "s3" {
-    key            = "state/app=example_app/env=dev/state.tfstate" # GOOD: State is stored in an S3 bucket
-    bucket         = "example-bucket"
-    use_lockfile   = true # GOOD: State is locked using a lockfile
-
-    assume_role {
-      role_arn = "arn:aws:iam::123456789012:role/terraform" # GOOD: A dedicated role is used to assume when accessing AWS resources
-    }
-  }
-}
-```
+`[TF-016]` **SHOULD**: A dedicated role should be assumed when accessing AWS resources for provider configuration. See `examples/GENERAL/provider-state.md` for implementation.

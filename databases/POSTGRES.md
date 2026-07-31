@@ -31,6 +31,6 @@ topics:
 
 `[PG-008]` **SHOULD**: Link tables should be used to model many-to-many relationships, or where multiple tables reference a shared, generic resource. For example, `users` and `jobs` may each link to a generic `documents` table via link tables, avoiding the need to add user- or job-specific foreign keys to `documents`.
 
-`[PG-008]` **SHOULD**: PostgreSQL tables should have a `created_at` and `updated_at` column to track when the row was created and last updated.
+`[PG-009]` **SHOULD**: PostgreSQL tables should have a `created_at` and `updated_at` column to track when the row was created and last updated.
 
-`[PG-009]` **SHOULD**: Avoid using complex data types such arrays and JSONB types in postgres tables.
+`[PG-010]` **SHOULD**: Avoid using complex data types such arrays and JSONB types in postgres tables.

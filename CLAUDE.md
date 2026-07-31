@@ -21,6 +21,15 @@ to find applicable coding standards.
 
 5. If a child standard contradicts a parent, the child takes precedence.
 
+6. If a matched standard's frontmatter lists an `examples:` key, each entry is
+   a small single-example file keyed to statement IDs (its heading is
+   `# [<ID>] <Title>` and a `Statements:` line lists all covered IDs). When
+   writing code governed by a statement that cites an example file, or whose
+   ID appears in an example's `Statements:` line, read that file. Read only
+   the example files so cited — never all of a standard's examples wholesale.
+   Paths are relative to the standard's own directory. Match the `Good` shape,
+   and avoid the `Bad` anti-patterns.
+
 To determine if a node matches your context:
 
 - description: compare the description of the node to the task you're working on
