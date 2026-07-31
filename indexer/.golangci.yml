@@ -1,0 +1,53 @@
+---
+# golangci-lint v2 configuration, migrated from the v1 schema with
+# `golangci-lint migrate` (the v1 `run.timeout` key is dropped: v2 disables the
+# timeout by default).
+version: "2"
+
+linters:
+  # The v1 config also listed gosimple, which v2 folded into staticcheck.
+  # errcheck, govet, ineffassign, staticcheck and unused are enabled by default
+  # in v2 but stay listed here so the enabled set remains explicit.
+  enable:
+  - depguard
+  - errcheck
+  - govet
+  - ineffassign
+  - misspell
+  - revive
+  - staticcheck
+  - unconvert
+  - unused
+
+  settings:
+    depguard:
+      rules:
+        archived-yaml:
+          deny:
+          - pkg: gopkg.in/yaml.v3
+            desc: >-
+              gopkg.in/yaml.v3 is archived and must not be imported; use
+              go.yaml.in/yaml/v3 instead. It may appear in go.sum as a
+              test-only transitive requirement of stretchr/testify.
+
+  exclusions:
+    # No exclusion preset is enabled, so revive's missing-doc-comment reports
+    # surface (GO-005). This replaces v1's `issues.exclude-use-default: false`.
+    generated: lax
+    paths:
+    - third_party$
+    - builtin$
+    - examples$
+
+formatters:
+  # gofmt and goimports moved out of `linters` into `formatters` in v2.
+  enable:
+  - gofmt
+  - goimports
+
+  exclusions:
+    generated: lax
+    paths:
+    - third_party$
+    - builtin$
+    - examples$

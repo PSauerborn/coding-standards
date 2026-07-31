@@ -12,3 +12,11 @@ claude:
 	@echo "Initiating claude session..."
 	@claude \
 		--plugin-dir ~/Github/psauerborn/agents
+
+.PHONY: index
+index:
+	@echo "Running indexer..."
+	@./bin/indexer \
+		--source . \
+		--output standards-tree.yaml
+	@echo "Indexing complete."

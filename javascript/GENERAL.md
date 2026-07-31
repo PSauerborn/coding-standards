@@ -34,18 +34,18 @@ topics:
 
 ## 2. Syntax, Naming & Style
 
-`[JS-009]` **MUST**: All file and function names must be camelCase.
+`[JS-008]` **MUST**: All file and function names must be camelCase.
 
-`[JS-010]` **MUST**: All functions must have a JSDoc comment that clearly describes the purpose of the function, its parameters, and its return values. The first word of every JSDoc comment should be the name of the function. This ensures that the JSDoc comment is easily searchable.
+`[JS-009]` **MUST**: All functions must have a JSDoc comment that clearly describes the purpose of the function, its parameters, and its return values. The first word of every JSDoc comment should be the name of the function. This ensures that the JSDoc comment is easily searchable.
 
-`[JS-011]` **MUST**: Code must follow DRY (Don't Repeat Yourself) principles. This ensures that code is maintainable and easy to understand.
+`[JS-010]` **MUST**: Code must follow DRY (Don't Repeat Yourself) principles. This ensures that code is maintainable and easy to understand.
 
-`[JS-012]` **MUST**: Code must implement components where possible, inline with DRY principles. This minimizes the amount of code that needs to be written and maintained.
+`[JS-011]` **MUST**: Code must implement components where possible, inline with DRY principles. This minimizes the amount of code that needs to be written and maintained.
 
 ## 3. Deployment
 
-`[JS-013]` **MUST**: Frontend applications must be deployed using docker.
+`[JS-012]` **MUST**: Frontend applications must be deployed using docker.
 
-`[JS-014]` **MUST**: SPA applications should be built and served via NGINX.
+`[JS-013]` **MUST**: SPA applications should be built and served via NGINX.
 
-`[JS-015]` **MUST**: SSR applications should be built and served via a node server.
+`[JS-014]` **MUST**: SSR applications should be built and served via a node server.

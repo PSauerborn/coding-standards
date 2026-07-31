@@ -14,6 +14,13 @@ Review all the standards markdown files in this repository and provide feedback 
 6. best practices - does the format of the standards and instructions align with modern best practices? Focus on the how information is structured and presented rather than the specific rules/instructions. This does not apply to meta rules that define agent behavior.
 7. mistakes - check for spelling and grammatical errors. review any code blocks for syntax errors. do not flag missing imports as many examples are partial snippets.
 
+Files under an `examples/` directory are companion example files, one example per file. They have no frontmatter and contain no statements, so most of the criteria above do not apply to them. Review them against criterion 7 (mistakes) only, and additionally check that each example file:
+
+- has a heading of the form `# [<ID>] <Title>`, followed by a `Statements:` line listing every statement it illustrates;
+- uses only IDs — in both the heading and the `Statements:` line — that exist in the standard that owns it;
+- is listed in the owning standard's `examples:` frontmatter key and referenced at least once in the body of that standard;
+- has a topic-based filename that contains no statement IDs.
+
 Ignore the following files:
 
 - @CLAUDE.md

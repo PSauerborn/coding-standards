@@ -6,6 +6,8 @@ scope:
 parent: GENERAL.md
 topics:
 - logging
+examples:
+- examples/LOGGING/log-structure.md
 ---
 
 # Logging General Standards
@@ -28,24 +30,4 @@ topics:
 
 `[LOG-006]` **SHOULD**: Log levels should be configurable via environment variables to ensure that logging verbosity can be controlled without making code changes.
 
-### Example
-
-The following example illustrates how logs should be structured
-
-```txt
-<!-- GOOD -->
-{"message": "received request to get user", "timestamp": 1779914598, "level": "info", "username": "TEST_USER_1"}
-{"message": "received request to update user", "timestamp": 1779916598, "level": "info", "username": "TEST_USER_1", "updated_field": "first_name"}
-
-```
-
-The following example illustrates how logs should NOT be structured
-
-```txt
-<!-- BAD -->
-<!-- BAD: context-specific information stored in message rather than dedicated field -->
-{"message": "received request to get user TEST_USER", "timestamp": 1779914598, "level": "info"}
-<!-- BAD: missing required fields -->
-{"message": "received request to update user", "level": "info", "username": "TEST_USER_1", "updated_field": "first_name"}
-
-```
+See `examples/LOGGING/log-structure.md` for illustrations of good and bad log structure.

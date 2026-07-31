@@ -30,7 +30,7 @@ Each rule is tagged **MUST** or **SHOULD**:
 
 Rules often include a short rationale. When a case isn't explicitly covered, apply the rationale rather than pattern-matching the literal wording.
 
-**Examples**: each section may include `Good` and `Bad` code samples. The `Bad` samples show real failure modes — not just style preferences. Match the `Good` shape.
+**Examples**: code examples live in single-example companion files under `examples/<NAME>/`, listed in the standard's `examples:` frontmatter key and referenced in-text as `examples/<NAME>/<topic>.md`. Each example file states the statements it illustrates. Read only the example files cited by the statements governing what you are writing. Examples may include `Good` and `Bad` code samples. The `Bad` samples show real failure modes — not just style preferences. Match the `Good` shape.
 
 **Conflict Resolution**:
 

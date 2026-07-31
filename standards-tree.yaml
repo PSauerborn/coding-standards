@@ -1,0 +1,296 @@
+nodes:
+  - path: GENERAL.md
+    title: General Code Standards
+    description: Cross-language general coding standards and best practices.
+    scope:
+      - '*'
+    topics:
+      - docker
+      - makefiles
+      - pre-commit
+      - integration-tests
+    aliases:
+      go: golang
+      js: javascript
+      ts: typescript
+      py: python
+      postgres: postgresql
+      pg: postgresql
+      deploy: deployment
+      containerization: container
+    children:
+      - path: databases/DYNAMODB.md
+        title: DynamoDB Code Standards
+        description: Standards for DynamoDB single-table design and access patterns.
+        scope:
+          - '*'
+        topics:
+          - dynamodb
+          - single-table-design
+          - nosql
+        examples:
+          - path: databases/examples/DYNAMODB/item-structure.md
+            title: Item Structure and Keying
+            statements: [DDB-001, DDB-002, DDB-003, DDB-004, DDB-006, DDB-008]
+        children: []
+      - path: databases/POSTGRES.md
+        title: PostgreSQL Code Standards
+        description: Standards for PostgreSQL data modeling and schema design.
+        scope:
+          - '*'
+        topics:
+          - postgresql
+          - relational
+          - data-modeling
+          - schema-design
+        children: []
+      - path: general/API.md
+        title: REST API General Standards
+        description: General standards for REST APIs.
+        scope:
+          - '*'
+        topics:
+          - api
+          - rest
+          - http
+        examples:
+          - path: general/examples/API/error-responses.md
+            title: Error Response Structure
+            statements: [API-002, API-004]
+        children: []
+      - path: general/DOCKER.md
+        title: Dockerfile General Standards
+        description: General standards for Dockerfiles.
+        scope:
+          - '*'
+        topics:
+          - docker
+          - dockerfile
+          - container
+          - deployment
+        children:
+          - path: golang/DOCKER.md
+            title: Golang Dockerfile Standards
+            description: Standards for writing Dockerfiles for Go applications.
+            scope:
+              - '*'
+            topics:
+              - golang
+              - docker
+              - dockerfile
+              - container
+            examples:
+              - path: golang/examples/DOCKER/three-stage-build.md
+                title: Three-Stage Distroless Build
+                statements: [GO-DOCKER-001, GO-DOCKER-002]
+            children: []
+          - path: javascript/DOCKER.md
+            title: Javascript Dockerfile Standards
+            description: Standards for writing Dockerfiles for Javascript applications.
+            scope:
+              - '*'
+            topics:
+              - javascript
+              - docker
+              - dockerfile
+              - container
+            examples:
+              - path: javascript/examples/DOCKER/nginx-spa-config.md
+                title: NGINX SPA Config
+                statements: [JS-DOCKER-002]
+              - path: javascript/examples/DOCKER/spa-dockerfile.md
+                title: SPA Dockerfile
+                statements: [JS-DOCKER-001, JS-DOCKER-002]
+              - path: javascript/examples/DOCKER/ssr-dockerfile.md
+                title: SSR Dockerfile
+                statements: [JS-DOCKER-001, JS-DOCKER-003]
+            children: []
+          - path: python/DOCKER.md
+            title: Python Dockerfile Standards
+            description: Standards for writing Dockerfiles for Python applications.
+            scope:
+              - '*'
+            topics:
+              - python
+              - docker
+              - dockerfile
+              - container
+            examples:
+              - path: python/examples/DOCKER/two-stage-build.md
+                title: Two-Stage Slim Build
+                statements: [PY-DOCKER-001, PY-DOCKER-002]
+            children: []
+      - path: general/LOGGING.md
+        title: Logging General Standards
+        description: General standards for logging implementation.
+        scope:
+          - '*'
+        topics:
+          - logging
+        examples:
+          - path: general/examples/LOGGING/log-structure.md
+            title: Structured Log Format
+            statements: [LOG-002, LOG-003, LOG-004]
+        children: []
+      - path: general/MAKEFILES.md
+        title: Makefile General Standards
+        description: General standards for makefile implementation.
+        scope:
+          - '*'
+        topics:
+          - makefile
+        children: []
+      - path: golang/GENERAL.md
+        title: Golang General Standards
+        description: General standards for writing Go applications.
+        scope:
+          - '*.go'
+        topics:
+          - golang
+        examples:
+          - path: golang/examples/GENERAL/config.md
+            title: Configuration Loading
+            statements: [GO-018, GO-020, GO-021, GO-022, GO-023, GO-024]
+          - path: golang/examples/GENERAL/unittests.md
+            title: Unittest Structure
+            statements: [GO-026, GO-028, GO-029, GO-032]
+          - path: golang/examples/GENERAL/logging.md
+            title: Structured Logging
+            statements: [GO-033]
+          - path: golang/examples/GENERAL/persistence-interface.md
+            title: Persistence Layer Interface
+            statements: [GO-013, GO-016, GO-035, GO-039, GO-040, GO-041, GO-042]
+          - path: golang/examples/GENERAL/persistence-anti-pattern.md
+            title: Persistence Layer Anti-Pattern
+            statements: [GO-013, GO-014, GO-035, GO-040]
+          - path: golang/examples/GENERAL/persistence-postgres.md
+            title: PostgreSQL Persistence with pgx
+            statements: [GO-036, GO-040, GO-041, GO-042, GO-044, GO-045]
+        children:
+          - path: golang/API.md
+            title: Golang REST API Standards
+            description: Standards for writing REST APIs in Go.
+            scope:
+              - '*.go'
+            topics:
+              - golang
+              - api
+              - rest
+              - gin-gonic
+            examples:
+              - path: golang/examples/API/controller-api.md
+                title: Controller-Pattern REST API
+                statements: [GO-API-001, GO-API-002, GO-API-003, GO-API-004, GO-API-005]
+              - path: golang/examples/API/api-anti-pattern.md
+                title: REST API Anti-Pattern
+                statements: [GO-API-002, GO-API-003, GO-API-004, GO-API-005]
+            children: []
+          - path: golang/WORKER.md
+            title: Golang Worker Standards
+            description: Standards for writing background workers in Go.
+            scope:
+              - '*.go'
+            topics:
+              - golang
+              - worker
+              - rabbitmq
+              - message-broker
+              - amqp
+            examples:
+              - path: golang/examples/WORKER/reference-worker.md
+                title: Reference Worker Implementation
+                statements: [GO-WRK-001, GO-WRK-002, GO-WRK-003, GO-WRK-004, GO-WRK-005, GO-WRK-006, GO-WRK-007, GO-WRK-008, GO-WRK-009, GO-WRK-010, GO-WRK-011]
+            children: []
+      - path: javascript/GENERAL.md
+        title: Javascript Code Standards
+        description: General standards for writing Javascript applications.
+        scope:
+          - '*.js'
+          - '*.ts'
+          - '*.vue'
+        topics:
+          - javascript
+          - quasar
+          - typescript
+          - node
+          - vue
+        children: []
+      - path: python/GENERAL.md
+        title: Python Code Standards
+        description: General standards for writing Python applications.
+        scope:
+          - '*.py'
+        topics:
+          - python
+          - pydantic
+          - pytest
+          - structlog
+        examples:
+          - path: python/examples/GENERAL/data-models.md
+            title: Data Model Implementation
+            statements: [PY-013, PY-014, PY-015, PY-016, PY-017, PY-019]
+          - path: python/examples/GENERAL/config.md
+            title: Configuration Loading
+            statements: [PY-019, PY-020, PY-021, PY-022, PY-023, PY-024]
+          - path: python/examples/GENERAL/dynamodb-fixture.md
+            title: DynamoDB mock_table Fixture
+            statements: [PY-029, PY-031, PY-033, PY-034, PY-035, PY-036, PY-037]
+          - path: python/examples/GENERAL/logging.md
+            title: Structured Logging with structlog
+            statements: [PY-038]
+          - path: python/examples/GENERAL/persistence-postgres.md
+            title: PostgreSQL Persistence
+            statements: [PY-039, PY-041, PY-042, PY-043, PY-045, PY-046, PY-047]
+          - path: python/examples/GENERAL/persistence-dynamodb.md
+            title: DynamoDB Persistence
+            statements: [PY-042, PY-043, PY-048, PY-049]
+        children:
+          - path: python/API.md
+            title: Python REST API Standards
+            description: Standards for writing REST APIs in Python.
+            scope:
+              - '*.py'
+            topics:
+              - python
+              - api
+              - rest
+              - fastapi
+            examples:
+              - path: python/examples/API/endpoint-structure.md
+                title: Endpoint Structure
+                statements: [PY-API-001, PY-API-002, PY-API-003, PY-API-004, PY-API-005, PY-API-006, PY-API-007, PY-API-008]
+              - path: python/examples/API/api-anti-pattern.md
+                title: REST API Anti-Pattern
+                statements: [PY-API-003, PY-API-004, PY-API-005, PY-API-006, PY-API-007, PY-API-008]
+            children: []
+      - path: terraform/GENERAL.md
+        title: Terraform Code Standards
+        description: Standards for Terraform project structure and state management.
+        scope:
+          - '*.tf'
+        topics:
+          - terraform
+          - iac
+        examples:
+          - path: terraform/examples/GENERAL/project-structure.md
+            title: Project Structure
+            statements: [TF-005, TF-006, TF-007, TF-009, TF-010, TF-011]
+          - path: terraform/examples/GENERAL/provider-state.md
+            title: Provider and State Configuration
+            statements: [TF-014, TF-015, TF-016]
+        children: []
+      - path: testing/ACCEPTANCE.md
+        title: Acceptance Testing Standards
+        description: Standards for acceptance testing using Gherkin and Cucumber.
+        scope:
+          - '*'
+        topics:
+          - testing
+          - acceptance-testing
+          - gherkin
+          - cucumber
+        examples:
+          - path: testing/examples/ACCEPTANCE/godog-scaffold.md
+            title: godog Test Scaffold
+            statements: [ACPT-001, ACPT-002, ACPT-003, ACPT-004]
+        children: []
