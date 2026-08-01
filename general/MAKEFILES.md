@@ -12,4 +12,4 @@ topics:
 
 ## 1. General Guidelines
 
-`[MAKE-001]` **SHOULD**: Makefiles should be used to automate common tasks/actions that are inherent to a repository. This includes linting and formatting commands, running of unittests and building of application source code. This
+`[MAKE-001]` **SHOULD**: Makefiles should be used to automate common tasks/actions that are inherent to a repository. This includes linting and formatting commands, running of unittests and building of application source code.

@@ -47,8 +47,10 @@ make fmt     # gofmt -w .
 
 ## Build environment
 
-**The Makefile targets run against the host Go toolchain, and there is no
-Dockerfile. This is a recorded deviation from `GEN-003`, not an oversight.**
+**Neither build path for this module is containerized: the Makefile targets run
+against the host Go toolchain, the release cross-builds run against a toolchain
+provisioned on a GitHub runner, and there is no Dockerfile. This is a recorded
+deviation from `GEN-003`, not an oversight.**
 
 `GEN-003` ("code should be built, tested and ran in a containerized
 environment") is a **SHOULD**, and the meta rules of `GENERAL.md` permit a
@@ -67,8 +69,36 @@ Reproducibility is instead pinned by the `go` directive in `go.mod` and by the
 determinism contract above: the output is a function of the corpus alone, and the
 integration suite compares two separate process invocations byte for byte.
 
-Revisit this if the module ever ships as a deployed artifact rather than as a
-checkout-local tool.
+The deviation used to close by asking for a revisit "if the module ever ships as
+a deployed artifact rather than as a checkout-local tool". That has now happened:
+`.github/workflows/release-indexer.yaml` cross-compiles the binary, commits it to
+`bin/` on `main` and tags the result `v{semver}-indexer`. Revisited, the
+deviation stands, extended to cover the release build path:
+
+- The three build jobs run `go build` directly on ephemeral GitHub runners, set
+  up by `actions/setup-go` with `go-version-file: indexer/go.mod`. The toolchain
+  is therefore pinned by the same `go` directive that pins a local build, so the
+  released binaries and a developer's `make build` compile against the same Go
+  release without a container mediating between them.
+- Each job gets a fresh, disposable runner image and builds with
+  `CGO_ENABLED=0`, so the build starts from a known base and links nothing from
+  that image into the artifact. That is the isolation a build container would
+  have bought here.
+- A Dockerfile added for the release build would be used by the release workflow
+  alone — local builds would keep using the Makefile — so it would add a third
+  build path rather than replace the two that exist.
+
+Revisit this if the released binary ever grows a dependency on anything from the
+runner image (cgo, a system library, a code generator), because at that point the
+runner image, not `go.mod`, decides what ships.
+
+**The release cross-build command itself is inlined in
+`.github/workflows/release-indexer.yaml` rather than exposed as an
+`indexer/Makefile` target. This is a recorded deviation from `GEN-004`**
+("Makefiles should be used to define common build and test targets"), which is
+also a **SHOULD**. The reason is scope: this work was scoped to exclude changes
+to the `indexer/` build tooling — `SPEC-002` §3.2 puts the indexer out of scope —
+so the three `Build indexer` steps keep their inline `go build` invocations.
 
 ## Discovery rule
 

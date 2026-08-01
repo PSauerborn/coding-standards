@@ -1,0 +1,135 @@
+# Manually-triggered release pipeline for the standards tree.
+#
+# Given a semver, the pipeline validates that the version is well formed and
+# unused, regenerates standards-tree.yaml with the committed linux/amd64
+# indexer, commits the result onto main as github-actions[bot] unless the tree
+# came back unchanged, and tags the release v{semver}-standards.
+name: Release Standards
+
+on:
+  workflow_dispatch:
+    inputs:
+      semver:
+        description: "Release version as major.minor.patch, with no 'v' prefix or suffix (e.g. 0.2.0)"
+        required: true
+        type: string
+
+# No job gets a privileged GITHUB_TOKEN by default; only the release job, which
+# pushes the regenerated tree and the release tag, opts back into
+# contents: write.
+permissions: {}
+
+jobs:
+  # Gates the whole pipeline: the release job needs this one, so a malformed or
+  # already-released version never regenerates, commits or tags anything.
+  #
+  # The checks below are deliberately duplicated from release-indexer.yaml
+  # rather than shared: the two pipelines release independently, and a change to
+  # one must not silently change the gate of the other.
+  validate:
+    name: Validate release version
+    runs-on: ubuntu-latest
+    steps:
+      # A release always publishes main, so a dispatch from any other ref is
+      # rejected here rather than silently releasing main's corpus. Checked
+      # before the checkout so a non-main dispatch never reaches repository
+      # content.
+      - name: Check release ref is main
+        env:
+          REF: ${{ github.ref }}
+        run: |
+          if [[ "$REF" != "refs/heads/main" ]]; then
+            echo "Error: releases must be dispatched from main (got '$REF')" >&2
+            exit 1
+          fi
+          echo "Dispatch ref '$REF' is main"
+
+      # fetch-depth: 0 because actions/checkout does not fetch tags by default
+      # and the version-is-unused check below reads them.
+      #
+      # persist-credentials: false because this job never pushes; the default
+      # would leave the GITHUB_TOKEN in .git/config for the whole job.
+      - name: Check out repository with tags
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      # The input is passed through env: rather than interpolated into the
+      # script body, so an arbitrary dispatch input cannot inject shell.
+      - name: Validate semver format
+        env:
+          SEMVER: ${{ inputs.semver }}
+        run: |
+          # Each component is 0 or a digit string with no leading zero, so
+          # 01.2.3 is rejected rather than released as a second spelling of
+          # 1.2.3.
+          if [[ ! "$SEMVER" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+            echo "Error: '$SEMVER' is not a valid semver (expected major.minor.patch)" >&2
+            exit 1
+          fi
+          echo "Version '$SEMVER' is a valid semver"
+
+      - name: Check release version is unused
+        env:
+          SEMVER: ${{ inputs.semver }}
+        run: |
+          TAG="v$SEMVER-standards"
+          if git rev-parse -q --verify "refs/tags/$TAG" > /dev/null; then
+            echo "Error: version $SEMVER already exists (tag $TAG)" >&2
+            exit 1
+          fi
+          echo "Version $SEMVER is unused (tag $TAG does not exist)"
+
+  release:
+    name: Regenerate tree, commit and tag release
+    needs: validate
+    runs-on: ubuntu-latest
+    # The only job that needs a push-capable GITHUB_TOKEN.
+    permissions:
+      contents: write
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v7
+        with:
+          ref: main
+
+      # The runner is linux/amd64, so the release runs the committed linux/amd64
+      # build of the indexer. Exit 0 means the corpus validated and the tree was
+      # written; any other exit fails the job and leaves the tree untouched.
+      - name: Regenerate standards tree
+        run: bin/indexer-linux-amd64 --source . --output standards-tree.yaml
+
+      - name: Configure git identity
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      # A regeneration that reproduces the committed tree is a valid release of
+      # the current corpus, not a failure: there is simply nothing to commit, and
+      # git commit would exit non-zero on the empty diff.
+      - name: Commit and push regenerated tree
+        env:
+          SEMVER: ${{ inputs.semver }}
+        run: |
+          # Staged first, then tested against the index: git diff on an
+          # untracked path reports no change, which would skip the commit of a
+          # tree that main does not carry at all.
+          git add standards-tree.yaml
+          if git diff --cached --quiet -- standards-tree.yaml; then
+            echo "standards-tree.yaml is unchanged; skipping the release commit"
+            exit 0
+          fi
+          git commit -m "Release: standards v$SEMVER"
+          git push origin main
+
+      # Tagged after the push so the tag points at the released commit, and
+      # unconditionally so a release whose tree was already up to date is tagged
+      # at the commit it reproduces.
+      - name: Tag release
+        env:
+          SEMVER: ${{ inputs.semver }}
+        run: |
+          TAG="v$SEMVER-standards"
+          git tag "$TAG"
+          git push origin "$TAG"

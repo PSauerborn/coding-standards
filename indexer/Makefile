@@ -9,8 +9,18 @@
 #     buying reproducibility for a single-binary developer tool at the cost of a
 #     build path that no longer matches how the tool is actually invoked.
 #
-# See indexer/README.md, "Build environment". Revisit if this module ever ships
-# as a deployed artifact rather than a checkout-local tool.
+# The same deviation covers the release cross-builds in
+# .github/workflows/release-indexer.yaml, which is where this module ships as a
+# deployed artifact: those jobs also run go build outside a container, on
+# ephemeral GitHub runners, against a toolchain pinned by
+# "go-version-file: indexer/go.mod" — the same go directive that pins a build
+# here — and with CGO_ENABLED=0, so the released binaries link nothing from the
+# runner image. Revisit if the released binary ever needs cgo, a system library
+# or a code generator, since the runner image would then decide what ships.
+#
+# That release build command is inlined in the workflow rather than exposed as a
+# target below; see indexer/README.md, "Build environment", for the full
+# reasoning and for the GEN-004 deviation that records it.
 
 GOLANGCI_LINT ?= $(shell go env GOPATH)/bin/golangci-lint
 

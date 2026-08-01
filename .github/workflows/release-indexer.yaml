@@ -1,0 +1,279 @@
+# Manually-triggered release pipeline for the indexer binary.
+#
+# Given a semver, the pipeline validates that the version is well formed and
+# unused, cross-builds the three shipped executables, commits them into bin/ on
+# main as github-actions[bot] and tags the release v{semver}-indexer.
+name: Release Indexer
+
+on:
+  workflow_dispatch:
+    inputs:
+      semver:
+        description: "Release version as major.minor.patch, with no 'v' prefix or suffix (e.g. 0.2.0)"
+        required: true
+        type: string
+
+# No job gets a privileged GITHUB_TOKEN by default; only the release job, which
+# pushes the binary commit and the release tag, opts back into contents: write.
+permissions: {}
+
+jobs:
+  # Gates the whole pipeline: every other job needs this one, directly or
+  # transitively, so a malformed or already-released version never builds.
+  validate:
+    name: Validate release version
+    runs-on: ubuntu-latest
+    steps:
+      # A release always publishes main, so a dispatch from any other ref is
+      # rejected here rather than silently releasing main's code. Checked before
+      # the checkout so a non-main dispatch never reaches repository content.
+      - name: Check release ref is main
+        env:
+          REF: ${{ github.ref }}
+        run: |
+          if [[ "$REF" != "refs/heads/main" ]]; then
+            echo "Error: releases must be dispatched from main (got '$REF')" >&2
+            exit 1
+          fi
+          echo "Dispatch ref '$REF' is main"
+
+      # fetch-depth: 0 because actions/checkout does not fetch tags by default
+      # and the version-is-unused check below reads them.
+      #
+      # persist-credentials: false because this job never pushes; the default
+      # would leave the GITHUB_TOKEN in .git/config for the whole job.
+      - name: Check out repository with tags
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      # The input is passed through env: rather than interpolated into the
+      # script body, so an arbitrary dispatch input cannot inject shell.
+      - name: Validate semver format
+        env:
+          SEMVER: ${{ inputs.semver }}
+        run: |
+          # Each component is 0 or a digit string with no leading zero, so
+          # 01.2.3 is rejected rather than released as a second spelling of
+          # 1.2.3.
+          if [[ ! "$SEMVER" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+            echo "Error: '$SEMVER' is not a valid semver (expected major.minor.patch)" >&2
+            exit 1
+          fi
+          echo "Version '$SEMVER' is a valid semver"
+
+      - name: Check release version is unused
+        env:
+          SEMVER: ${{ inputs.semver }}
+        run: |
+          TAG="v$SEMVER-indexer"
+          if git rev-parse -q --verify "refs/tags/$TAG" > /dev/null; then
+            echo "Error: version $SEMVER already exists (tag $TAG)" >&2
+            exit 1
+          fi
+          echo "Version $SEMVER is unused (tag $TAG does not exist)"
+
+  build-linux-amd64:
+    name: Build linux/amd64
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      # Checking out github.sha pins the build to the one commit the run was
+      # dispatched against, so all three build jobs compile the same source
+      # however long any of them queues; a branch name would be re-resolved per
+      # job and could drift mid-run. That commit is always on main, because the
+      # validate job this job needs rejects a dispatch from any other ref, so a
+      # dispatch from another ref still can never get its source compiled into
+      # a released binary. persist-credentials: false because this job builds
+      # code and never pushes.
+      - name: Check out the dispatched commit
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: indexer/go.mod
+
+      - name: Build indexer
+        working-directory: indexer
+        env:
+          CGO_ENABLED: "0"
+          GOOS: linux
+          GOARCH: amd64
+        run: go build -o ../indexer-linux-amd64 .
+
+      - name: Upload indexer binary
+        uses: actions/upload-artifact@v7
+        with:
+          name: indexer-linux-amd64
+          path: indexer-linux-amd64
+          if-no-files-found: error
+
+  build-linux-arm64:
+    name: Build linux/arm64
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      # Checking out github.sha pins the build to the one commit the run was
+      # dispatched against, so all three build jobs compile the same source
+      # however long any of them queues; a branch name would be re-resolved per
+      # job and could drift mid-run. That commit is always on main, because the
+      # validate job this job needs rejects a dispatch from any other ref, so a
+      # dispatch from another ref still can never get its source compiled into
+      # a released binary. persist-credentials: false because this job builds
+      # code and never pushes.
+      - name: Check out the dispatched commit
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: indexer/go.mod
+
+      - name: Build indexer
+        working-directory: indexer
+        env:
+          CGO_ENABLED: "0"
+          GOOS: linux
+          GOARCH: arm64
+        run: go build -o ../indexer-linux-arm64 .
+
+      - name: Upload indexer binary
+        uses: actions/upload-artifact@v7
+        with:
+          name: indexer-linux-arm64
+          path: indexer-linux-arm64
+          if-no-files-found: error
+
+  # macOS runner rather than a linux cross-build, per REQ-2.1.
+  build-darwin-arm64:
+    name: Build darwin/arm64
+    needs: validate
+    runs-on: macos-latest
+    steps:
+      # Checking out github.sha pins the build to the one commit the run was
+      # dispatched against, so all three build jobs compile the same source
+      # however long any of them queues; a branch name would be re-resolved per
+      # job and could drift mid-run. That commit is always on main, because the
+      # validate job this job needs rejects a dispatch from any other ref, so a
+      # dispatch from another ref still can never get its source compiled into
+      # a released binary. persist-credentials: false because this job builds
+      # code and never pushes.
+      - name: Check out the dispatched commit
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: indexer/go.mod
+
+      - name: Build indexer
+        working-directory: indexer
+        env:
+          CGO_ENABLED: "0"
+          GOOS: darwin
+          GOARCH: arm64
+        run: go build -o ../indexer-darwin-arm64 .
+
+      - name: Upload indexer binary
+        uses: actions/upload-artifact@v7
+        with:
+          name: indexer-darwin-arm64
+          path: indexer-darwin-arm64
+          if-no-files-found: error
+
+  release:
+    name: Commit binaries and tag release
+    needs:
+      - build-linux-amd64
+      - build-linux-arm64
+      - build-darwin-arm64
+    runs-on: ubuntu-latest
+    # The only job that needs a push-capable GITHUB_TOKEN.
+    permissions:
+      contents: write
+    steps:
+      # The branch, not the dispatched commit the build jobs used, because this
+      # job pushes: it needs a local main branch to fast-forward, which a
+      # detached commit checkout does not give it. The step below re-establishes
+      # that the two are the same commit.
+      - name: Check out main
+        uses: actions/checkout@v7
+        with:
+          ref: main
+
+      # The build jobs compiled ${{ github.sha }}. If main advanced while they
+      # ran, committing their output here would tag a tree that did not
+      # produce the released binaries, so the release aborts and asks for a
+      # re-dispatch rather than shipping a mixed revision.
+      - name: Check main is still the released commit
+        env:
+          RELEASE_SHA: ${{ github.sha }}
+        run: |
+          HEAD_SHA="$(git rev-parse HEAD)"
+          if [[ "$HEAD_SHA" != "$RELEASE_SHA" ]]; then
+            echo "Error: main advanced from $RELEASE_SHA to $HEAD_SHA during the release; re-dispatch the workflow" >&2
+            exit 1
+          fi
+          echo "main is still at the released commit $RELEASE_SHA"
+
+      # pattern: restricts the download to the three build artifacts, so no
+      # other artifact uploaded anywhere in the run can be flattened into bin/
+      # by merge-multiple.
+      - name: Download release binaries
+        uses: actions/download-artifact@v8
+        with:
+          pattern: indexer-*
+          path: bin
+          merge-multiple: true
+
+      # Belt and braces on the pattern above: the released file set must be
+      # exactly the three built binaries before anything is made executable and
+      # committed.
+      - name: Verify downloaded release binaries
+        run: |
+          EXPECTED="indexer-darwin-arm64 indexer-linux-amd64 indexer-linux-arm64"
+          ACTUAL="$(ls bin | grep '^indexer-' | sort | xargs || true)"
+          if [[ "$ACTUAL" != "$EXPECTED" ]]; then
+            echo "Error: expected release binaries '$EXPECTED' in bin/, found '$ACTUAL'" >&2
+            exit 1
+          fi
+          echo "Downloaded release binaries: $ACTUAL"
+
+      # upload-artifact drops POSIX modes, so the downloaded files come back as
+      # mode 100644. They must be restored before git add, or the committed
+      # binaries are not executable.
+      - name: Restore executable permissions
+        run: chmod +x bin/indexer-*
+
+      - name: Configure git identity
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit and push release binaries
+        env:
+          SEMVER: ${{ inputs.semver }}
+        run: |
+          git add bin/indexer-*
+          git commit -m "Release: indexer v$SEMVER"
+          git push origin main
+
+      # Tagged after the push so the tag points at the released commit.
+      - name: Tag release
+        env:
+          SEMVER: ${{ inputs.semver }}
+        run: |
+          TAG="v$SEMVER-indexer"
+          git tag "$TAG"
+          git push origin "$TAG"
