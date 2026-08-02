@@ -1,0 +1,39 @@
+FROM debian:trixie
+
+ARG AGENTS_VERSION=main
+ARG CODING_STANDARDS_VERSION=main
+ARG CLAUDE_CODE_VERSION=2.1.220
+
+WORKDIR /agent
+
+RUN apt-get update && \
+    apt-get install -y curl git
+
+# clone repositories containing agent definitions and coding
+# standards. stored in /etc as read-only so that agents cannot
+# modify agent or standards definitions
+RUN git clone https://github.com/PSauerborn/agents \
+    --branch "${AGENTS_VERSION}" \
+    /etc/agents
+
+RUN git clone https://github.com/PSauerborn/coding-standards \
+    --branch "${CODING_STANDARDS_VERSION}" \
+    /etc/coding-standards
+
+# create dedicated user for agent
+RUN useradd -m agent
+USER agent
+
+WORKDIR /home/agent/workspace
+
+# install claude as the agent user so the binary lands in this
+# user's own ~/.local/bin (/root/.local/bin is unreachable: /root is 0700)
+RUN curl -fsSL https://claude.ai/install.sh | bash -s -- "${CLAUDE_CODE_VERSION}"
+
+# write claude config: bypass permission prompts (safe here — non-root user in sandbox)
+COPY --chown=agent:agent .claude.docker.json /home/agent/.claude/settings.json
+
+ENV PATH="/home/agent/.local/bin:${PATH}"
+ENV CODING_STANDARDS_DIR=/etc/coding-standards
+
+CMD [ "claude", "--plugin-dir", "/etc/agents" ]

@@ -9,9 +9,20 @@ scan-secrets:
 
 .PHONY: claude
 claude:
-	@echo "Initiating claude session..."
-	@claude \
-		--plugin-dir ~/Github/psauerborn/agents
+	@echo "Initiating sandboxed claude session..."
+	@docker build \
+		--pull \
+		--build-arg AGENTS_VERSION=0.1.0 \
+		--build-arg CODING_STANDARDS_VERSION=0.1.0 \
+		--build-arg CLAUDE_CODE_VERSION=latest \
+		-t claude-sandbox \
+		-f Dockerfile.claude \
+		.
+
+	@docker run --rm \
+		-v $(PWD):/home/agent/workspace \
+		-it \
+		claude-sandbox
 
 .PHONY: index
 index:

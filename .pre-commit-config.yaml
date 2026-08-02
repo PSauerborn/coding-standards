@@ -15,6 +15,7 @@ repos:
         args: [--fix=lf]
       - id: check-added-large-files    # prevent large blobs from being committed
         args: [--maxkb=1024]
+        exclude: ^bin/                 # released indexer binaries are committed here
       - id: check-merge-conflict       # block unresolved merge conflict markers
       - id: check-case-conflict        # catch names that clash on case-insensitive filesystems
       - id: check-yaml                 # validate YAML syntax (agent/skill frontmatter configs)
