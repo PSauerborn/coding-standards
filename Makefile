@@ -13,7 +13,7 @@ claude:
 	@docker build \
 		--pull \
 		--build-arg AGENTS_VERSION=0.1.0 \
-		--build-arg CODING_STANDARDS_VERSION=0.1.0 \
+		--build-arg CODING_STANDARDS_VERSION=v0.1.0-standards \
 		--build-arg CLAUDE_CODE_VERSION=latest \
 		-t claude-sandbox \
 		-f Dockerfile.claude \
