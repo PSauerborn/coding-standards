@@ -41,6 +41,8 @@ Releases have no local command — both are GitHub Actions workflows, triggered 
 
 Both workflows validate the version first and abort before building, committing or tagging anything if the `semver` is malformed or its tag already exists. The binaries released into `bin/` are why `check-added-large-files` carries `exclude: ^bin/` in `.pre-commit-config.yaml`.
 
+**Do not** update the YAML tree manually - updating the standards tree is handled by CI pipelines.
+
 ## Architecture
 
 **Standards documents.** A markdown file is a standards document if and only if its *first line* opens a YAML frontmatter block that parses and declares a `title`. Frontmatter carries `title`, `description`, `scope` (globs), `topics`, optional `parent`, `aliases`, and `examples`. The `parent:` keys link every document into a single tree rooted at `GENERAL.md`; language/domain directories (`golang/`, `python/`, `databases/`, `general/`, ...) hold the children. Statements inside documents are ID-tagged like `` `[GO-001]` **MUST**: ... ``.
