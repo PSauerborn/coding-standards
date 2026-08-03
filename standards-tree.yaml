@@ -43,6 +43,13 @@ nodes:
           - relational
           - data-modeling
           - schema-design
+        examples:
+          - path: databases/examples/POSTGRES/link-tables.md
+            title: Link Tables for Shared Resources
+            statements: [PG-005]
+          - path: databases/examples/POSTGRES/timestamp-columns.md
+            title: Timestamp Columns and the `updated_at` Trigger
+            statements: [PG-007, PG-008, PG-010]
         children: []
       - path: general/API.md
         title: REST API General Standards
