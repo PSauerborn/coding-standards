@@ -28,16 +28,16 @@ examples:
 
 `[API-006]` **MUST**: REST APIs must expose a `/version` endpoint that returns the version of the API.
 
-`[API-007]` **MUST**: REST APIs must have an associated `openapi.yaml` file that defines the API contract. All endpoints must be documented in this file.
+`[API-007]` **MUST**: REST APIs must have an associated `openapi.yaml` file that defines the API contract in an OpenAPI compatible format. All endpoints must be documented in this file.
 
-**SHOULD**: Related REST API endpoints should be grouped into routers with a shared route convention where possible. For example, users endpoints should be grouped under a single router with a `/{version}/users` prefix. This creates a clear boundary between components and ensures that APIs can be easily split into separate services if required.
+`[API-008]` **SHOULD**: Related REST API endpoints should be grouped into routers with a shared route convention where possible. For example, users endpoints should be grouped under a single router with a `/{version}/users` prefix. This creates a clear boundary between components and ensures that APIs can be easily split into separate services if required.
 
-`[API-008]` **SHOULD**: REST API endpoints should follow a dependency injection pattern. Prefer initializing per-request dependencies (database connections, service clients) in the endpoint handler rather than inside business logic.
+`[API-009]` **SHOULD**: REST API endpoints should follow a dependency injection pattern. Prefer initializing per-request dependencies (database connections, service clients) in the endpoint handler rather than inside business logic.
 
-`[API-009]` **SHOULD**: CORS should be enabled for REST APIs by default. The language-specific implementation determines which CORS middleware/package to use.
+`[API-010]` **SHOULD**: CORS should be enabled for REST APIs by default. The language-specific implementation determines which CORS middleware/package to use.
 
-`[API-010]` **SHOULD**: Registration of endpoints should be kept minimal — routing, dependency creation, and error handling only. Business logic must live outside the endpoint registration.
+`[API-011]` **SHOULD**: Registration of endpoints should be kept minimal — routing, dependency creation, and error handling only. Business logic must live outside the endpoint registration.
 
-`[API-011]` **SHOULD**: Each endpoint should have its own unit test.
+`[API-012]` **SHOULD**: Each endpoint should have its own unit test.
 
 See `examples/API/error-responses.md` for illustrations of good and bad error response structure.
