@@ -46,10 +46,10 @@ nodes:
         examples:
           - path: databases/examples/POSTGRES/link-tables.md
             title: Link Tables for Shared Resources
-            statements: [PG-005]
+            statements: [PG-005, PG-006]
           - path: databases/examples/POSTGRES/timestamp-columns.md
             title: Timestamp Columns and the `updated_at` Trigger
-            statements: [PG-007, PG-008, PG-010]
+            statements: [PG-006, PG-008, PG-009, PG-011]
         children: []
       - path: general/API.md
         title: REST API General Standards
