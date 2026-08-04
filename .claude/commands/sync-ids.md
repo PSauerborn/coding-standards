@@ -19,6 +19,6 @@ Ignore the following files:
 - @PLAN.md
 - any file under an `examples/` directory — these are companion example files that contain no statements and must not receive new IDs.
 
-Example files do reference existing statement IDs in their `# [<ID>] <Title>` heading and their `Statements:` line. Whenever a statement ID is renumbered, update every example heading and `Statements:` line that refers to it so that the references stay accurate. Example filenames are topic-based and must not change during renumbering.
+Example files do reference existing statement IDs in their `# [<ID>] <Title>` heading and their `Statements:` line. Whenever a statement ID is renumbered, update every example heading and `Statements:` line that refers to it so that the references stay accurate. Example filenames are topic-based and must not change during renumbering. Make sure to do this **after** all IDs have been updated in the standards documents to ensure that further renumbering in up-stream standards does not break any links.
 
 $ARGUMENTS
