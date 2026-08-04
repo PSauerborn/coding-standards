@@ -1,6 +1,6 @@
-# [PG-008] Timestamp Columns and the `updated_at` Trigger
+# [PG-009] Timestamp Columns and the `updated_at` Trigger
 
-Statements: `[PG-007]` `[PG-008]` `[PG-010]`
+Statements: `[PG-006]` `[PG-008]` `[PG-009]` `[PG-011]`
 
 Every table carries `created_at` and `updated_at` columns. Both default to the current
 UTC timestamp on the server, and `updated_at` is maintained by a trigger so that it can
@@ -25,6 +25,9 @@ BEGIN
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+
+COMMENT ON FUNCTION base.set_updated_at() IS
+    'Trigger function that stamps updated_at with the current UTC time on every UPDATE.';
 ```
 
 ## Applying it to a table
@@ -43,11 +46,23 @@ CREATE TRIGGER user_set_updated_at
     BEFORE UPDATE ON base.user
     FOR EACH ROW
     EXECUTE FUNCTION base.set_updated_at();
+
+-- GOOD: the table, its columns and the trigger all carry comments.
+COMMENT ON TABLE base.user IS
+    'Application users. Keyed on an internally generated ID, never an external one.';
+COMMENT ON COLUMN base.user.created_at IS
+    'UTC timestamp of row creation. Set by the server default; never supplied by callers.';
+COMMENT ON COLUMN base.user.updated_at IS
+    'UTC timestamp of the last update. Maintained by the user_set_updated_at trigger.';
+COMMENT ON TRIGGER user_set_updated_at ON base.user IS
+    'Keeps base.user.updated_at current on every UPDATE.';
 ```
 
 ```sql
 -- BAD: no server defaults and no trigger. Both columns depend on every caller
--- remembering to set them, and any missed UPDATE leaves updated_at stale.
+-- remembering to set them, and any missed UPDATE leaves updated_at stale. No
+-- COMMENT ON either, so an operator has to read the application to learn what
+-- the table holds.
 CREATE TABLE base.user (
     id         uuid PRIMARY KEY,
     email      text NOT NULL,
@@ -61,7 +76,7 @@ created_at timestamptz NOT NULL DEFAULT (now() AT TIME ZONE 'utc')
 
 ## Defining the same schema with SQLAlchemy and alembic
 
-Per `[PG-010]`, schemas are created through `alembic`, using `sqlalchemy` to define
+Per `[PG-011]`, schemas are created through `alembic`, using `sqlalchemy` to define
 columns and other schema entities.
 
 ```python
@@ -80,17 +95,34 @@ user = sa.Table(
         sa.TIMESTAMP(timezone=True),
         nullable=False,
         server_default=sa.func.now(),
+        comment=(
+            "UTC timestamp of row creation. Set by the server default; never supplied "
+            "by callers."
+        ),
     ),
     sa.Column(
         "updated_at",
         sa.TIMESTAMP(timezone=True),
         nullable=False,
         server_default=sa.func.now(),
+        comment=(
+            "UTC timestamp of the last update. Maintained by the user_set_updated_at "
+            "trigger."
+        ),
     ),
+    # comment= emits COMMENT ON TABLE, so the description lives with the schema
+    # definition and stays in step with it.
+    comment="Application users. Keyed on an internally generated ID, never an external one.",
 )
 ```
 
-The trigger itself has no SQLAlchemy construct, so create it explicitly in the migration:
+`comment=` on `sa.Table` and `sa.Column` is rendered by alembic as `COMMENT ON TABLE` and
+`COMMENT ON COLUMN`, and later edits are picked up as `alter_column(..., comment=...)` /
+`create_table_comment(...)` operations. Keeping the text on the construct is what makes the
+comments stay up to date; hand-written `op.execute("COMMENT ON ...")` calls drift.
+
+The trigger and its comment have no SQLAlchemy construct, so create them explicitly in the
+migration:
 
 ```python
 from alembic import op
@@ -105,6 +137,12 @@ def upgrade() -> None:
             BEFORE UPDATE ON base.user
             FOR EACH ROW
             EXECUTE FUNCTION base.set_updated_at();
+        """
+    )
+    op.execute(
+        """
+        COMMENT ON TRIGGER user_set_updated_at ON base.user IS
+            'Keeps base.user.updated_at current on every UPDATE.';
         """
     )
 
