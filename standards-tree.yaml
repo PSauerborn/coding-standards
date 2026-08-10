@@ -300,4 +300,7 @@ nodes:
           - path: testing/examples/ACCEPTANCE/godog-scaffold.md
             title: godog Test Scaffold
             statements: [ACPT-001, ACPT-002, ACPT-003, ACPT-004]
+          - path: testing/examples/ACCEPTANCE/feature-tagging.md
+            title: Feature File Tagging
+            statements: [ACPT-006, ACPT-007, ACPT-008, ACPT-009, ACPT-010]
         children: []
