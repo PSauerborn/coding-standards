@@ -31,3 +31,7 @@ examples:
 `[LOG-006]` **SHOULD**: Log levels should be configurable via environment variables to ensure that logging verbosity can be controlled without making code changes.
 
 See `examples/LOGGING/log-structure.md` for illustrations of good and bad log structure.
+
+## 2. API Logging
+
+`[LOG-007]`: **MUST**: APIs must log at minimum one INFO level message per request that includes: the request method, full URL, elapsed time in seconds, and the status code for the request.
