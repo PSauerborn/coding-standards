@@ -44,4 +44,10 @@ See `examples/ACCEPTANCE/feature-tagging.md` for reference good and bad feature 
 
 `[ACPT-010]` **MUST**: Acceptance criteria must assert on observable behavior — what a user or client can see through the system's public surface (responses, rendered pages, emitted notifications). Where no public read path exists, assertions on externally-meaningful side effects (persisted records, published events, sent notifications) are acceptable; assertions on pure internals (intermediate state, function calls) are not.
 
-`[ACPT-011]` **SHOULD**: Use `Scenario Outline` with `Examples` tables to cover input variations rather than duplicating near-identical scenarios.
+`[ACPT-011]` **MUST**: Each scenario must be independent of every other scenario. A scenario must set up its own preconditions in its `Given` steps and must not rely on state left behind by a previous scenario, so that any tagged subset (e.g. `--tags='@spec-002'`) can be run in isolation and in any order with the same result.
+
+`[ACPT-012]` **SHOULD**: Use `Scenario Outline` with `Examples` tables to cover input variations rather than duplicating near-identical scenarios.
+
+`[ACPT-013]` **SHOULD**: Each scenario should verify a single behaviour: one triggering action in its `When` step and the outcomes of that action in its `Then` steps.
+A scenario that exercises several actions in sequence should be split into one scenario per action. Input variations of the same behaviour belong in a `Scenario
+Outline` (see `[ACPT-011]`), not in separate scenarios.
