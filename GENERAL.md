@@ -74,3 +74,5 @@ repos:
 Add any language-specific hooks for formatting/linting on project-by-project basis.
 
 `[GEN-006]` **SHOULD**: Projects should have dedicated integration tests.
+
+`[GEN-007]` **MUST**: Production functions must not exceed a cognitive complexity of 14, as defined by SonarSource's cognitive complexity metric. Test code is exempt, because table-driven tests and nested test blocks score high by design. A function over the limit must be split into named steps, each of which can be read and tested on its own, rather than raising the limit or suppressing the finding. Where a linter for the language implements the metric, the limit must be enforced in the project's lint configuration.

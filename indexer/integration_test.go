@@ -31,7 +31,7 @@ const (
 	nodeCountSnapshot = 18
 	// exampleCountSnapshot is the number of example entries the documents of
 	// the repository corpus currently cite between them.
-	exampleCountSnapshot = 28
+	exampleCountSnapshot = 32
 )
 
 // corpusChanged is the failure message of the snapshot assertions. It names the

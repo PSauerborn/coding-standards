@@ -13,6 +13,7 @@ examples:
 - examples/GENERAL/persistence-interface.md
 - examples/GENERAL/persistence-anti-pattern.md
 - examples/GENERAL/persistence-postgres.md
+- examples/GENERAL/golangci-config.md
 ---
 
 # Golang General Standards
@@ -25,7 +26,7 @@ examples:
 
 `[GO-003]` **MUST**: All code must be formatted using `gofmt`.
 
-`[GO-004]` **MUST**: All code must be linted using `golangci-lint`.
+`[GO-004]` **MUST**: All code must be linted using `golangci-lint`, configured by a `.golangci.yml` at the module root that keeps the `standard` linter set and also enables `wsl_v5` and `gocognit` as required by GO-046 and GO-047. Lint must pass before code is committed. See `examples/GENERAL/golangci-config.md` for the reference configuration.
 
 ## 2. Syntax, Naming & Style
 
@@ -126,3 +127,9 @@ See `examples/GENERAL/unittests.md` for a reference unittest implementation.
 `[GO-044]` **MUST**: PostgreSQL persistence layers must be implemented using the `github.com/jackc/pgx/v5` package. This enforces consistency across all applications. See `examples/GENERAL/persistence-postgres.md` for an illustration.
 
 `[GO-045]` **SHOULD**: Connection pools should be used in most cases rather than isolated connections. This ensures that connections are reused and that the application does not consume too many resources. See `examples/GENERAL/persistence-postgres.md` for an illustration.
+
+## 9. Function Structure
+
+`[GO-046]` **MUST**: The cognitive complexity limit of GEN-007 must be enforced by golangci-lint's `gocognit` linter with `min-complexity: 14` (gocognit reports a function scoring above this value), with `_test.go` files excluded. Findings must be fixed by splitting the function, never with `//nolint:gocognit`. See `examples/GENERAL/golangci-config.md` for the configuration.
+
+`[GO-047]` **MUST**: Statements must follow the blank-line rules of golangci-lint's `wsl_v5` linter: a blank line after every block and before a `return` that follows other statements, and unrelated statements never cuddled together.
