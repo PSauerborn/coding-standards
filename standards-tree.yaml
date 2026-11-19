@@ -173,6 +173,9 @@ nodes:
           - path: golang/examples/GENERAL/persistence-postgres.md
             title: PostgreSQL Persistence with pgx
             statements: [GO-036, GO-040, GO-041, GO-042, GO-044, GO-045]
+          - path: golang/examples/GENERAL/golangci-config.md
+            title: golangci-lint Configuration
+            statements: [GO-004, GO-046, GO-047]
         children:
           - path: golang/API.md
             title: Golang REST API Standards
